@@ -21,13 +21,14 @@ function main() {
 	if [ "${#}" -lt 1 ]; then
 		err "Error: no argument provided"
 		err "${USAGE}"
+		err "Available repo:"
+		printf '\t%s\n' "${repos[@]}"
 		return 1
 	fi
 
 	# In Bash, it's easy to check if an array contains an element
-	if [[ ! ${repos[*]} =~ (^|[[:space:]])"$1"($|[[:space:]]) ]]; then
-		err "Error: invalid argument provided"
-		echo "Available repos:"
+	if [[ ! ${repos[*]} =~ (^|[[:space:]])"${1}"($|[[:space:]]) ]]; then
+		err "Error: invalid argument provided. Available repo:"
 		printf '\t%s\n' "${repos[@]}"
 		return 1
 	fi
@@ -44,7 +45,7 @@ function main() {
 	fi
 
 	# Backup old folder
-	[[ -d "${dest}" }] && mv "${dest}" "${dest}.bak-${now}"
+	[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
 
 	# Fetch new webmail from GitHub
 	GIT_SSH_COMMAND='ssh -i ~/.ssh/deploy_id_ed25519 -o IdentitiesOnly=yes' git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
@@ -75,7 +76,7 @@ function main() {
 }
 
 function err() {
-	echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: ${*}" >&2
+	echo "${*}" >&2
 }
 
 main "${@}"; exit
