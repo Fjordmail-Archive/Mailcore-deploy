@@ -1,0 +1,81 @@
+#!/bin/bash
+set -e
+
+#######################################
+#	Backup current folder
+#	Get latest from the GitHub
+#	Fetch plugins
+#
+#	Arguments:
+#		repo (string): repo name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
+
+function main() {
+	local readonly USAGE="Usage: ./deploy repo"
+	declare -a repos=("Sol.dk-RC" "Wemail-RC")
+	local readonly now=$(date +'%Y-%m-%d--%H-%M')
+
+	if [ "${#}" -lt 1 ]; then
+		err "Error: no argument provided"
+		err "${USAGE}"
+		return 1
+	fi
+
+	# In Bash, it's easy to check if an array contains an element
+	if [[ ! ${repos[*]} =~ (^|[[:space:]])"$1"($|[[:space:]]) ]]; then
+		err "Error: invalid argument provided"
+		echo "Available repos:"
+		printf '\t%s\n' "${repos[@]}"
+		return 1
+	fi
+
+	# Set correct destination folder, depending on $1
+	if [ "${1}" == "Sol.dk-RC" ]; then
+		dest="app.sol.dk"
+	elif [ "${1}" == "Wemail-RC" ]; then
+		dest="app.wemail.no"
+	else
+		err "Error: invalid argument provided"
+		err "This should not appear"
+		return 1
+	fi
+
+	# Backup old folder
+	[[ -d "${dest}" }] && mv "${dest}" "${dest}.bak-${now}"
+
+	# Fetch new webmail from GitHub
+	GIT_SSH_COMMAND='ssh -i ~/.ssh/deploy_id_ed25519 -o IdentitiesOnly=yes' git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
+
+	# Retrive config
+	[[ -d "${dest}/config" ]] && rm -rf "${dest}/config" # Remove old if existing
+
+	if [[ ! -d "config/${dest}/" ]]; then
+		err "Error: config at config/"${dest}"/ does not exist"
+		return 1
+	fi
+
+	ln -s "../config/${dest}/" "${dest}/config"
+
+	# wblist: remove old, fetch if not alredy there and link
+	[[ -d "${dest}/plugins/wblist/" ]] && rm -rf "${dest}/plugins/wblist/"
+
+	if [ ! -d plugins/RC-Plugin-wblist/ ]; then
+		mkdir -p plugins;
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/deplay_wblist_id_ed25519 -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist;
+	fi
+
+	ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
+
+	# Fix permissions
+	sudo chown -R www-data:www-data "${dest}" config/ plugins/
+	sudo chmod -R ug+rwx "${dest}" config/ plugins/
+}
+
+function err() {
+	echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: ${*}" >&2
+}
+
+main "${@}"; exit
