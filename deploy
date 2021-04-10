@@ -249,11 +249,11 @@ function get_raim() {
 		rm -rf "plugins/raim-${dest}"
 		rm -rf "${dest}/instance/password-reset"
 		rm -rf "${dest}/instance/registration"
-		
+
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
-		
+
 		# Fetch raim config
 		ln -s "../../../../../config/${dest}/raim_shared_config.js" "plugins/raim-${dest}/packages/shared/src/config.js"
 		ln -s "../../../../config/${dest}/raim_registration.env" "plugins/raim-${dest}/packages/registration/.env"
@@ -327,9 +327,9 @@ function get_recurrent() {
 		echo "Recurrent plugin is up to date. Skipping..."
 	fi
 
-	# Install plugin to rc_root with links
-	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
-	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
+	# Install plugin to rc_root and fetch config
+	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-Recurrent" "${dest}/plugins/recurrent"
+	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 
 	return 0
 }
