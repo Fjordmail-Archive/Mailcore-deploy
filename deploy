@@ -269,6 +269,7 @@ function get_raim() {
 	fi
 
 	# Install plugin to rc_root with links
+	mkdir "${dest}/instance/"
 	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "plugins/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
 	[[ ! -L "${dest}/instance/registration" ]] && ln -s "plugins/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
 
