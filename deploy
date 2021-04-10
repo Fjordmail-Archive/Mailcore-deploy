@@ -88,7 +88,7 @@ function get_rc() {
 	fi
 
 	# If current webmail does not exist or is outdated
-	if should_be_updated "${dest}"; then
+	if [[ "$(should_be_updated \"${dest}\")" -eq 1 ]]; then
 		# Backup old folder
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
 
@@ -176,7 +176,7 @@ function get_wblist() {
 	fi
 
 	# Check if shared plugin is out of date
-	if should_be_updated "plugins/RC-Plugin-wblist/"; then
+	if [[ "$(should_be_updated \"plugins/RC-Plugin-wblist\")" -eq 1 ]]; then
 		# wblist: remove existing
 		rm -rf "${dest}/plugins/wblist/"
 		rm -rf plugins/RC-Plugin-wblist/
@@ -222,7 +222,7 @@ function get_raim() {
 	fi
 
 	# Check if raim is out of date or not existant
-	if should_be_updated "plugins/raim-${dest}"; then
+	if [[ "$(should_be_updated \"plugins/raim-${dest}\")" -eq 1 ]]; then
 		# Delete existing
 		rm -rf "plugins/raim-${dest}"
 		rm -rf "${dest}/instance/password-reset"
@@ -280,7 +280,7 @@ function get_recurrent() {
 	fi
 
 	# Check if recurrent plugin is out of date
-	if should_be_updated "plugins/RC-Plugin-Recurrent-${dest}"; then
+	if [[ "$(should_be_updated \"plugins/RC-Plugin-Recurrent-${dest}\")" -eq 1 ]]; then
 		# Recurrent: remove existing
 		rm -rf "${dest}/plugins/recurrent/"
 		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
