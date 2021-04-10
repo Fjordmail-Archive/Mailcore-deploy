@@ -12,7 +12,6 @@ set -e
 #		1 upon error
 #		0 upon success
 #######################################
-
 function main() {
 	local readonly USAGE="Usage: ./deploy repo"
 	declare -a repos=("Sol.dk-RC" "Wemail-RC")
@@ -39,32 +38,16 @@ function main() {
 		service="soldk"
 	elif [ "${1}" == "Wemail-RC" ]; then
 		dest="app.wemail.no"
-		service="wemail"
 	else
 		err "Error: invalid argument provided"
 		err "This should not appear"
 		return 1
 	fi
 
-	# If current webmail does not exist or is outdated
-	if [[ ! -d "${dest}" ]] || [[ "$(git --git-dir=${dest}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]]; then
-		# Backup old folder
-		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
+	# Fetch/update webmail
+	get_rc "${dest}" "${service}"
 
-		# Fetch new webmail from GitHub
-		GIT_SSH_COMMAND="ssh -i ~/.ssh/mailcore_deploy_${service}rc -o IdentitiesOnly=yes" git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
-
-		# Remove potential included plugins
-		rm -rf "${dest}/plugins/wblist"
-		rm -rf "${dest}/plugins/recurrent"
-		rm -rf "${dest}/raim"
-		rm -rf "${dest}/instance/password-reset"
-		rm -rf "${dest}/instance/registration"
-	else
-		echo "Webmail is up to date. Skipping..."
-	fi
-
-	# Fetch/Update plugins
+	# Fetch/update plugins
 	mkdir -p plugins
 	get_config "${dest}"
 	get_wblist "${dest}"
@@ -76,6 +59,68 @@ function main() {
 	sudo chmod -R ug+rwx "${dest}" config/ plugins/
 }
 
+#######################################
+#	Check if current webmail if up to date
+#	If not:
+#		- Delete old
+#		- Fetch new
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
+function get_rc() {
+	if [ "${#}" -lt 2 ]; then
+		err "Error: missing arguments"
+		err "Usage: get_rc dest service"
+		return 1
+	fi
+
+	
+	dest="${1}"
+	service="${2}"
+
+	# Check if passed dest exists
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# If current webmail does not exist or is outdated
+	if [[ ! -d "${dest}" ]] || [[ "$(git --git-dir=${dest}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]]; then
+		# Backup old folder
+		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
+
+		# Fetch new webmail from GitHub
+		GIT_SSH_COMMAND="ssh -i ~/.ssh/mailcore_deploy_${service}rc -o IdentitiesOnly=yes" \
+		git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
+
+		# Remove potential included plugins
+		rm -rf "${dest}/plugins/wblist"
+		rm -rf "${dest}/plugins/recurrent"
+		rm -rf "${dest}/raim"
+		rm -rf "${dest}/instance/password-reset"
+		rm -rf "${dest}/instance/registration"
+	else
+		echo "Webmail is up to date. Skipping..."
+	fi
+
+	return 0
+}
+
+#######################################
+#	Set symlink to config:
+#		app.sol.dk/config -> config/app.sol.dk/
+#		app.wemail.no/config -> config/app.wemail.no/
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
 function get_config() {
 	if [ "${#}" -lt 1 ]; then
 		err "Error: no argument provided"
@@ -104,6 +149,19 @@ function get_config() {
 	return 0
 }
 
+#######################################
+#	Check if current plugins/RC-Plugin-wblist if up to date
+#	If not:
+#		- Delete old
+#		- Fetch new
+#		- Link from rc_root/plugins/wblist
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
 function get_wblist() {
 	if [ "${#}" -lt 1 ]; then
 		err "Error: no argument provided"
@@ -125,7 +183,8 @@ function get_wblist() {
 		rm -rf plugins/RC-Plugin-wblist/
 
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_wblist -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_wblist -o IdentitiesOnly=yes' \
+		git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
 
 		# Link new to rc_root/plugins
 		ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
@@ -136,6 +195,19 @@ function get_wblist() {
 	return 0
 }
 
+#######################################
+#	Check if current plugins/raim-$dest if up to date
+#	If not:
+#		- Delete old
+#		- Build
+#		- Link
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
 function get_raim() {
 	if [ "${#}" -lt 1 ]; then
 		err "Error: no argument provided"
@@ -158,7 +230,8 @@ function get_raim() {
 		rm -rf "${dest}/instance/registration"
 		
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_raim -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_raim -o IdentitiesOnly=yes' \
+		git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
 
 		# Build
 		cd "plugins/raim-${dest}"
@@ -179,6 +252,19 @@ function get_raim() {
 	return 0
 }
 
+#######################################
+#	Check if current plugins/RC-Plugin-Recurrent-$dest if up to date
+#	If not:
+#		- Delete old
+#		- Build
+#		- Link
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
 function get_recurrent() {
 	if [ "${#}" -lt 1 ]; then
 		err "Error: no argument provided"
@@ -200,7 +286,8 @@ function get_recurrent() {
 		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
 
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_recurrent -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_recurrent -o IdentitiesOnly=yes' \
+		git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
 
 		# Link plugins
 		ln -s "plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
