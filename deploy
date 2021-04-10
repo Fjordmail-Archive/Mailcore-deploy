@@ -44,35 +44,164 @@ function main() {
 		return 1
 	fi
 
-	# Backup old folder
-	[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
+	# If current webmail does not exist or is outdated
+	if [[ ! -d "${dest}" ]] || [[ "$(git --git-dir=${dest}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]]; then
+		# Backup old folder
+		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
 
-	# Fetch new webmail from GitHub
-	GIT_SSH_COMMAND='ssh -i ~/.ssh/deploy_id_ed25519 -o IdentitiesOnly=yes' git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
+		# Fetch new webmail from GitHub
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
 
-	# Retrive config
-	[[ -d "${dest}/config" ]] && rm -rf "${dest}/config" # Remove old if existing
+		# Remove potential included plugins
+		rm -rf "${dest}/plugins/wblist"
+		rm -rf "${dest}/plugins/recurrent"
+		rm -rf "${dest}/raim"
+		rm -rf "${dest}/instance/password-reset"
+		rm -rf "${dest}/instance/registration"
+	fi
 
+	# Fetch/Update plugins
+	mkdir -p plugins
+	get_config "${dest}"
+	get_wblist "${dest}"
+	get_raim "${dest}"
+	get_recurrent "${dest}"
+
+	# Fix permissions
+	sudo chown -R www-data:www-data "${dest}" config/ plugins/
+	sudo chmod -R ug+rwx "${dest}" config/ plugins/
+}
+
+function get_config() {
+	if [ "${#}" -lt 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_config dest"
+		return 1
+	fi
+
+	# Check if passed dest exists
+	dest="${1}"
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if config/dest exists
 	if [[ ! -d "config/${dest}/" ]]; then
 		err "Error: config at config/"${dest}"/ does not exist"
 		return 1
 	fi
 
+	# Remove old rc_root/config
+	[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
+
 	ln -s "../config/${dest}/" "${dest}/config"
 
-	# wblist: remove old, fetch if not alredy there and link
-	[[ -d "${dest}/plugins/wblist/" ]] && rm -rf "${dest}/plugins/wblist/"
+	return 0
+}
 
-	if [ ! -d plugins/RC-Plugin-wblist/ ]; then
-		mkdir -p plugins;
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/deplay_wblist_id_ed25519 -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist;
+function get_wblist() {
+	if [ "${#}" -lt 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_wblist dest"
+		return 1
 	fi
 
-	ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
+	# Check if passed dest exists
+	dest="${1}"
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
 
-	# Fix permissions
-	sudo chown -R www-data:www-data "${dest}" config/ plugins/
-	sudo chmod -R ug+rwx "${dest}" config/ plugins/
+	# Check if shared plugin is out of date
+	if [ ! -d plugins/RC-Plugin-wblist/ ] || [[ "$(git --git-dir=plugins/RC-Plugin-wblist/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]]; then
+		# wblist: remove existing
+		rm -rf "${dest}/plugins/wblist/"
+		rm -rf plugins/RC-Plugin-wblist/
+
+		# Fetch latest
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
+
+		# Link new to rc_root/plugins
+		ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
+	fi
+
+	return 0
+}
+
+function get_raim() {
+	if [ "${#}" -lt 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_raim dest"
+		return 1
+	fi
+
+	# Check if passed dest exists
+	dest="${1}"
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if raim is out of date or not existant
+	if [ ! -d "plugins/raim-${dest}" ] || [[ "$(git --git-dir=plugins/raim-${dest}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]]; then
+		# Delete existing
+		rm -rf "plugins/raim-${dest}"
+		rm -rf "${dest}/instance/password-reset"
+		rm -rf "${dest}/instance/registration"
+		
+		# Fetch latest
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
+
+		# Build
+		cd "plugins/raim-${dest}"
+		yarn install
+		ln -s "../config/${dest}/raim_shared_config.js" packages/shared/src/config.js
+		ln -s "../config/${dest}/registration.env" packages/registration/.env
+		ln -s "../config/${dest}/password-reset.env" packages/password-reset/.env
+		yarn build
+
+		ln -s packages/password-reset/build "../../${dest}/instance/password-reset"
+		ln -s packages/registration/build "../../${dest}/instance/registration"
+
+		cd ../../
+	fi
+
+	return 0
+}
+
+function get_recurrent() {
+	if [ "${#}" -lt 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_recurrent dest"
+		return 1
+	fi
+
+	# Check if passed dest exists
+	dest="${1}"
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if recurrent plugin is out of date
+	if [ ! -d "plugins/RC-Plugin-Recurrent-${dest}" ] || [[ "$(git --git-dir=plugins/RC-Plugin-Recurrent-${dest}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]]; then
+		# Recurrent: remove existing
+		rm -rf "${dest}/plugins/recurrent/"
+		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
+
+		# Fetch latest
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
+
+		# Link plugins
+		ln -s "plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
+
+		ln -s "../config/${dest}/Recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
+		ln -s "plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
+	fi
+
+	return 0
 }
 
 function err() {
