@@ -328,7 +328,7 @@ function get_recurrent() {
 	fi
 
 	# Install plugin to rc_root and fetch config
-	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-Recurrent" "${dest}/plugins/recurrent"
+	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
 	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 
 	return 0
@@ -369,5 +369,6 @@ function err() {
 
 # Todo:
 # - Check if links are valid with test -e
+# - Update readme with some doc
 
 main "${@}"; exit
