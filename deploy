@@ -303,28 +303,31 @@ function get_recurrent() {
 }
 
 #######################################
-#	Check if local git repo is up to date with remote
+#       Check if local git repo is up to date with remote
 #
-#	Arguments:
-#		repo (string): repo path
-#	Returns:
-#		1 if it should be updated
-#		0 otherwise
+#       Arguments:
+#               repo (string): repo path
+#       Output:
+#               1 if it should be updated
+#               0 otherwise
+#       Returns:
+#               1 upon success
+#               0 upon error
 #######################################
 function should_be_updated() {
-	if [ "${#}" -ne 1 ]; then
-		err "Error: no argument provided"
-		err "Usage: should_be_updated repo"
-		return 1
-	fi
+        if [ "${#}" -ne 1 ]; then
+                err "Error: no argument provided"
+                err "Usage: should_be_updated repo"
+                return 1
+        fi
 
-	local readonly repo="${1}"
+        local readonly repo="${1}"
 
-	[[ ! -d "${repo}" ]] && return 1
-	[[ ! -d "${repo}/.git" ]] && return 1
-	[[ "$(git --git-dir=${repo}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]] && return 1
+        [[ ! -d "${repo}" ]] && echo 1 && return 0
+        [[ ! -d "${repo}/.git" ]] && echo 1 && return 0
+        [[ "$(git --git-dir=${repo}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]] && echo 1 && return 0
 
-	return 0
+        return 0
 }
 
 # Print to stderr
@@ -336,6 +339,5 @@ function err() {
 #	Todo
 #
 # - Check if links are valid with test -e
-
 
 main "${@}"; exit
