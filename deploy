@@ -79,7 +79,7 @@ function get_rc() {
 
 	local readonly dest="${1}"
 	local readonly service="${2}"
-	local readonly deploy_key="~/.ssh/mailcore_deploy_${service}rc"
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${service}rc"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -169,7 +169,7 @@ function get_config() {
 #		0 upon success
 #######################################
 function get_wblist() {
-	local readonly deploy_key="~/.ssh/mailcore_deploy_wblist"
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_wblist"
 
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
@@ -223,7 +223,7 @@ function get_wblist() {
 #		0 upon success
 #######################################
 function get_raim() {
-	local readonly deploy_key="~/.ssh/mailcore_deploy_raim"
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_raim"
 
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
@@ -289,7 +289,7 @@ function get_raim() {
 #		0 upon success
 #######################################
 function get_recurrent() {
-	local readonly deploy_key="~/.ssh/mailcore_deploy_recurrent"
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_recurrent"
 
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
