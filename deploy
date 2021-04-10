@@ -86,6 +86,12 @@ function get_rc() {
 		return 1
 	fi
 
+	# Check if deloy key is found
+	if [[ ! -f "~/.ssh/mailcore_deploy_${service}rc" ]]; then
+		err "Error: deploy key for ${dest} was not found"
+		return 1
+	fi
+
 	# If current webmail does not exist or is outdated
 	if [[ "$(should_be_updated \"${dest}\")" -eq 1 ]]; then
 		# Backup old folder
@@ -175,6 +181,12 @@ function get_wblist() {
 		return 1
 	fi
 
+	# Check if deloy key is found
+	if [[ ! -f "~/.ssh/mailcore_deploy_wblist" ]]; then
+		err "Error: deploy key for RC-Plugin-wblist was not found"
+		return 1
+	fi
+
 	# Check if shared plugin is out of date
 	if [[ "$(should_be_updated \"plugins/RC-Plugin-wblist\")" -eq 1 ]]; then
 		# wblist: remove existing
@@ -218,6 +230,12 @@ function get_raim() {
 	local readonly dest="${1}"
 	if [[ ! -d "${dest}" ]]; then
 		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if deloy key is found
+	if [[ ! -f "~/.ssh/mailcore_deploy_raim" ]]; then
+		err "Error: deploy key for raim was not found"
 		return 1
 	fi
 
@@ -276,6 +294,12 @@ function get_recurrent() {
 	local readonly dest="${1}"
 	if [[ ! -d "${dest}" ]]; then
 		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if deloy key is found
+	if [[ ! -f "~/.ssh/mailcore_deploy_recurrent" ]]; then
+		err "Error: deploy key for RC-Plugin-Recurrent was not found"
 		return 1
 	fi
 
