@@ -15,7 +15,6 @@ set -e
 function main() {
 	local readonly USAGE="Usage: ./deploy repo"
 	declare -a repos=("Sol.dk-RC" "Wemail-RC")
-	local readonly now=$(date +'%Y-%m-%d--%H-%M')
 
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
@@ -90,6 +89,7 @@ function get_rc() {
 	# If current webmail does not exist or is outdated
 	if [[ "$(should_be_updated \"${dest}\")" -eq 1 ]]; then
 		# Backup old folder
+		local readonly now=$(date +'%Y-%m-%d--%H-%M')
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
 
 		# Fetch new webmail from GitHub
