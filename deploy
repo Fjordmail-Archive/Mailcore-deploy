@@ -329,7 +329,7 @@ function get_recurrent() {
 
 	# Install plugin to rc_root and fetch config
 	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
-	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
+	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 
 	return 0
 }
