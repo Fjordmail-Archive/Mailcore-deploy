@@ -34,7 +34,6 @@ function main() {
 	# Set correct destination folder, depending on $1
 	if [ "${1}" == "Sol.dk-RC" ]; then
 		local readonly dest="app.sol.dk"
-		local readonly service="soldk"
 	elif [ "${1}" == "Wemail-RC" ]; then
 		local readonly dest="app.wemail.no"
 	else
@@ -44,7 +43,7 @@ function main() {
 	fi
 
 	# Fetch/update webmail
-	get_rc "${dest}" "${service}"
+	get_rc "${dest}" "${1}"
 
 	# Fetch/update plugins
 	mkdir -p plugins
@@ -66,6 +65,7 @@ function main() {
 #
 #	Arguments:
 #		dest (string): rc_root name
+#		repo (string): name of remote repo
 #	Returns:
 #		1 upon error
 #		0 upon success
@@ -73,13 +73,13 @@ function main() {
 function get_rc() {
 	if [ "${#}" -ne 2 ]; then
 		err "Error: missing arguments"
-		err "Usage: get_rc dest service"
+		err "Usage: get_rc dest repo"
 		return 1
 	fi
 
 	local readonly dest="${1}"
-	local readonly service="${2}"
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${service}rc"
+	local readonly repo="${2}"
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -96,12 +96,11 @@ function get_rc() {
 	# If current webmail does not exist or is outdated
 	if [[ "$(should_be_updated \"${dest}\")" -eq 1 ]]; then
 		# Backup old folder
-		local readonly now=$(date +'%Y-%m-%d--%H-%M')
-		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
+		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
 
 		# Fetch new webmail from GitHub
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-		git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
+			git clone "git@github.com:Fjordmail/${repo}.git" "${dest}"
 
 		# Remove potential included plugins
 		rm -rf "${dest}/plugins/wblist"
@@ -198,7 +197,7 @@ function get_wblist() {
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-		git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
+			git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
 	else
 		echo "Wblist is up to date. Skipping..."
 	fi
@@ -253,7 +252,7 @@ function get_raim() {
 		
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-		git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
+			git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
 
 		# Build
 		cd "plugins/raim-${dest}"
@@ -318,7 +317,7 @@ function get_recurrent() {
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-		git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
+			git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
 
 		# Fetch config
 		ln -s "../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
