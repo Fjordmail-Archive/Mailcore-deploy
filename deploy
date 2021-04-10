@@ -184,12 +184,12 @@ function get_wblist() {
 		# Fetch latest
 		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_wblist -o IdentitiesOnly=yes' \
 		git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
-
-		# Link new to rc_root/plugins
-		ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
 	else
 		echo "Wblist is up to date. Skipping..."
 	fi
+
+	# Install plugin to rc_root with a link
+	[[ ! -L "${dest}/plugins/wblist" ]] && ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
 
 	return 0
 }
@@ -240,13 +240,14 @@ function get_raim() {
 		ln -s "../config/${dest}/raim_password-reset.env" packages/password-reset/.env
 		yarn build
 
-		ln -s packages/password-reset/build "../../${dest}/instance/password-reset"
-		ln -s packages/registration/build "../../${dest}/instance/registration"
-
 		cd ../../
 	else
 		echo "RAIM is up to date. Skipping..."
 	fi
+
+	# Install plugin to rc_root with links
+	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "plugins/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
+	[[ ! -L "${dest}/instance/registration" ]] && ln -s "plugins/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
 
 	return 0
 }
@@ -288,14 +289,15 @@ function get_recurrent() {
 		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_recurrent -o IdentitiesOnly=yes' \
 		git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
 
-		# Link plugins
-		ln -s "plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
-
+		# Fetch config
 		ln -s "../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
-		ln -s "plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 	else
 		echo "Recurrent plugin is up to date. Skipping..."
 	fi
+
+	# Install plugin to rc_root with links
+	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
+	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 
 	return 0
 }
@@ -303,5 +305,12 @@ function get_recurrent() {
 function err() {
 	echo "${*}" >&2
 }
+
+##
+##	Todo
+##
+# - Check if links are valid with test -e
+# - Create git_is_up_to_date function
+
 
 main "${@}"; exit
