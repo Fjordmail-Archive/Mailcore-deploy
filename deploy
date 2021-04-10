@@ -322,7 +322,7 @@ function get_recurrent() {
 			git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
 
 		# Fetch config
-		ln -s "../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
+		ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
 	else
 		echo "Recurrent plugin is up to date. Skipping..."
 	fi
@@ -367,9 +367,7 @@ function err() {
 	echo "${*}" >&2
 }
 
-#
-#	Todo
-#
+# Todo:
 # - Check if links are valid with test -e
 
 main "${@}"; exit
