@@ -72,7 +72,7 @@ function main() {
 #		0 upon success
 #######################################
 function get_rc() {
-	if [ "${#}" -lt 2 ]; then
+	if [ "${#}" -ne 2 ]; then
 		err "Error: missing arguments"
 		err "Usage: get_rc dest service"
 		return 1
