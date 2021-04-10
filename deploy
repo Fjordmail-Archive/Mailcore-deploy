@@ -60,6 +60,8 @@ function main() {
 		rm -rf "${dest}/raim"
 		rm -rf "${dest}/instance/password-reset"
 		rm -rf "${dest}/instance/registration"
+	else
+		echo "Webmail is up to date. Skipping..."
 	fi
 
 	# Fetch/Update plugins
@@ -127,6 +129,8 @@ function get_wblist() {
 
 		# Link new to rc_root/plugins
 		ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
+	else
+		echo "Wblist is up to date. Skipping..."
 	fi
 
 	return 0
@@ -168,6 +172,8 @@ function get_raim() {
 		ln -s packages/registration/build "../../${dest}/instance/registration"
 
 		cd ../../
+	else
+		echo "RAIM is up to date. Skipping..."
 	fi
 
 	return 0
@@ -201,6 +207,8 @@ function get_recurrent() {
 
 		ln -s "../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
 		ln -s "plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
+	else
+		echo "Recurrent plugin is up to date. Skipping..."
 	fi
 
 	return 0
