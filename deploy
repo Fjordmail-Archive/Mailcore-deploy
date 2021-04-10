@@ -367,8 +367,4 @@ function err() {
 	echo "${*}" >&2
 }
 
-# Todo:
-# - Check if links are valid with test -e
-# - Update readme with some doc
-
 main "${@}"; exit
