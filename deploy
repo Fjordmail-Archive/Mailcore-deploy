@@ -34,10 +34,10 @@ function main() {
 
 	# Set correct destination folder, depending on $1
 	if [ "${1}" == "Sol.dk-RC" ]; then
-		dest="app.sol.dk"
-		service="soldk"
+		local readonly dest="app.sol.dk"
+		local readonly service="soldk"
 	elif [ "${1}" == "Wemail-RC" ]; then
-		dest="app.wemail.no"
+		local readonly dest="app.wemail.no"
 	else
 		err "Error: invalid argument provided"
 		err "This should not appear"
@@ -78,9 +78,8 @@ function get_rc() {
 		return 1
 	fi
 
-	
-	dest="${1}"
-	service="${2}"
+	local readonly dest="${1}"
+	local readonly service="${2}"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -129,7 +128,7 @@ function get_config() {
 	fi
 
 	# Check if passed dest exists
-	dest="${1}"
+	local readonly dest="${1}"
 	if [[ ! -d "${dest}" ]]; then
 		err "Error: destination folder does not exist"
 		return 1
@@ -170,7 +169,7 @@ function get_wblist() {
 	fi
 
 	# Check if passed dest exists
-	dest="${1}"
+	local readonly dest="${1}"
 	if [[ ! -d "${dest}" ]]; then
 		err "Error: destination folder does not exist"
 		return 1
@@ -216,7 +215,7 @@ function get_raim() {
 	fi
 
 	# Check if passed dest exists
-	dest="${1}"
+	local readonly dest="${1}"
 	if [[ ! -d "${dest}" ]]; then
 		err "Error: destination folder does not exist"
 		return 1
@@ -273,7 +272,7 @@ function get_recurrent() {
 	fi
 
 	# Check if passed dest exists
-	dest="${1}"
+	local readonly dest="${1}"
 	if [[ ! -d "${dest}" ]]; then
 		err "Error: destination folder does not exist"
 		return 1
