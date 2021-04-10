@@ -79,6 +79,7 @@ function get_rc() {
 
 	local readonly dest="${1}"
 	local readonly service="${2}"
+	local readonly deploy_key="~/.ssh/mailcore_deploy_${service}rc"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -87,8 +88,8 @@ function get_rc() {
 	fi
 
 	# Check if deloy key is found
-	if [[ ! -f "~/.ssh/mailcore_deploy_${service}rc" ]]; then
-		err "Error: deploy key for ${dest} was not found"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
@@ -99,7 +100,7 @@ function get_rc() {
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
 
 		# Fetch new webmail from GitHub
-		GIT_SSH_COMMAND="ssh -i ~/.ssh/mailcore_deploy_${service}rc -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 		git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
 
 		# Remove potential included plugins
@@ -168,6 +169,8 @@ function get_config() {
 #		0 upon success
 #######################################
 function get_wblist() {
+	local readonly deploy_key="~/.ssh/mailcore_deploy_wblist"
+
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_wblist dest"
@@ -182,8 +185,8 @@ function get_wblist() {
 	fi
 
 	# Check if deloy key is found
-	if [[ ! -f "~/.ssh/mailcore_deploy_wblist" ]]; then
-		err "Error: deploy key for RC-Plugin-wblist was not found"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
@@ -194,7 +197,7 @@ function get_wblist() {
 		rm -rf plugins/RC-Plugin-wblist/
 
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_wblist -o IdentitiesOnly=yes' \
+		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 		git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
 	else
 		echo "Wblist is up to date. Skipping..."
@@ -220,6 +223,8 @@ function get_wblist() {
 #		0 upon success
 #######################################
 function get_raim() {
+	local readonly deploy_key="~/.ssh/mailcore_deploy_raim"
+
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_raim dest"
@@ -234,8 +239,8 @@ function get_raim() {
 	fi
 
 	# Check if deloy key is found
-	if [[ ! -f "~/.ssh/mailcore_deploy_raim" ]]; then
-		err "Error: deploy key for raim was not found"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
@@ -247,7 +252,7 @@ function get_raim() {
 		rm -rf "${dest}/instance/registration"
 		
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_raim -o IdentitiesOnly=yes' \
+		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 		git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
 
 		# Build
@@ -284,6 +289,8 @@ function get_raim() {
 #		0 upon success
 #######################################
 function get_recurrent() {
+	local readonly deploy_key="~/.ssh/mailcore_deploy_recurrent"
+
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_recurrent dest"
@@ -298,8 +305,8 @@ function get_recurrent() {
 	fi
 
 	# Check if deloy key is found
-	if [[ ! -f "~/.ssh/mailcore_deploy_recurrent" ]]; then
-		err "Error: deploy key for RC-Plugin-Recurrent was not found"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
@@ -310,7 +317,7 @@ function get_recurrent() {
 		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
 
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_recurrent -o IdentitiesOnly=yes' \
+		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 		git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
 
 		# Fetch config
