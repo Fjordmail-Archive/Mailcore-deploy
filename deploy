@@ -36,8 +36,10 @@ function main() {
 	# Set correct destination folder, depending on $1
 	if [ "${1}" == "Sol.dk-RC" ]; then
 		dest="app.sol.dk"
+		service="soldk"
 	elif [ "${1}" == "Wemail-RC" ]; then
 		dest="app.wemail.no"
+		service="wemail"
 	else
 		err "Error: invalid argument provided"
 		err "This should not appear"
@@ -50,7 +52,7 @@ function main() {
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-${now}"
 
 		# Fetch new webmail from GitHub
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
+		GIT_SSH_COMMAND="ssh -i ~/.ssh/mailcore_deploy_${service}rc -o IdentitiesOnly=yes" git clone "git@github.com:Fjordmail/${1}.git" "${dest}"
 
 		# Remove potential included plugins
 		rm -rf "${dest}/plugins/wblist"
@@ -121,7 +123,7 @@ function get_wblist() {
 		rm -rf plugins/RC-Plugin-wblist/
 
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_wblist -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
 
 		# Link new to rc_root/plugins
 		ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
@@ -152,14 +154,14 @@ function get_raim() {
 		rm -rf "${dest}/instance/registration"
 		
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_raim -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
 
 		# Build
 		cd "plugins/raim-${dest}"
 		yarn install
 		ln -s "../config/${dest}/raim_shared_config.js" packages/shared/src/config.js
-		ln -s "../config/${dest}/registration.env" packages/registration/.env
-		ln -s "../config/${dest}/password-reset.env" packages/password-reset/.env
+		ln -s "../config/${dest}/raim_registration.env" packages/registration/.env
+		ln -s "../config/${dest}/raim_password-reset.env" packages/password-reset/.env
 		yarn build
 
 		ln -s packages/password-reset/build "../../${dest}/instance/password-reset"
@@ -192,12 +194,12 @@ function get_recurrent() {
 		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
 
 		# Fetch latest
-		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
+		GIT_SSH_COMMAND='ssh -i ~/.ssh/mailcore_deploy_recurrent -o IdentitiesOnly=yes' git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
 
 		# Link plugins
 		ln -s "plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
 
-		ln -s "../config/${dest}/Recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
+		ln -s "../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
 		ln -s "plugins/raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 	fi
 
