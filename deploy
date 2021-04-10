@@ -2,9 +2,9 @@
 set -e
 
 #######################################
-#	Backup current folder
 #	Check if webmail need to be updated
 #	Check if plugins need to be updated
+#	Backs up current webmail if it need to be updated
 #
 #	Arguments:
 #		repo (string): repo name
