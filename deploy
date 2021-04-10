@@ -3,8 +3,8 @@ set -e
 
 #######################################
 #	Backup current folder
-#	Get latest from the GitHub
-#	Fetch plugins
+#	Check if webmail need to be updated
+#	Check if plugins need to be updated
 #
 #	Arguments:
 #		repo (string): repo name
