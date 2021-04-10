@@ -253,15 +253,16 @@ function get_raim() {
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
+		
+		# Fetch raim config
+		ln -s "config/${dest}/raim_shared_config.js" "plugins/raim-${dest}packages/shared/src/config.js"
+		ln -s "config/${dest}/raim_registration.env" "plugins/raim-${dest}packages/registration/.env"
+		ln -s "config/${dest}/raim_password-reset.env" "plugins/raim-${dest}packages/password-reset/.env"
 
 		# Build
 		cd "plugins/raim-${dest}"
 		yarn install
-		ln -s "../config/${dest}/raim_shared_config.js" packages/shared/src/config.js
-		ln -s "../config/${dest}/raim_registration.env" packages/registration/.env
-		ln -s "../config/${dest}/raim_password-reset.env" packages/password-reset/.env
 		yarn build
-
 		cd ../../
 	else
 		echo "RAIM is up to date. Skipping..."
