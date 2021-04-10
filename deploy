@@ -17,7 +17,7 @@ function main() {
 	declare -a repos=("Sol.dk-RC" "Wemail-RC")
 	local readonly now=$(date +'%Y-%m-%d--%H-%M')
 
-	if [ "${#}" -lt 1 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "${USAGE}"
 		err "Available repo:"
@@ -121,7 +121,7 @@ function get_rc() {
 #		0 upon success
 #######################################
 function get_config() {
-	if [ "${#}" -lt 1 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_config dest"
 		return 1
@@ -162,7 +162,7 @@ function get_config() {
 #		0 upon success
 #######################################
 function get_wblist() {
-	if [ "${#}" -lt 1 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_wblist dest"
 		return 1
@@ -208,7 +208,7 @@ function get_wblist() {
 #		0 upon success
 #######################################
 function get_raim() {
-	if [ "${#}" -lt 1 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_raim dest"
 		return 1
@@ -266,7 +266,7 @@ function get_raim() {
 #		0 upon success
 #######################################
 function get_recurrent() {
-	if [ "${#}" -lt 1 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_recurrent dest"
 		return 1
@@ -312,9 +312,9 @@ function get_recurrent() {
 #		0 otherwise
 #######################################
 function should_be_updated() {
-	if [ "${#}" -lt 1 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
-		err "Usage: get_recurrent dest"
+		err "Usage: should_be_updated repo"
 		return 1
 	fi
 
