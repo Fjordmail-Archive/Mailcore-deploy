@@ -22,7 +22,7 @@ Available repo:
 
 ## Tree
 
-```console
+```bash
 .
 ├── app.sol.dk/ # RC root for Sol.dk - some directories are omitted
 │   ├── config -> ../config/app.sol.dk
