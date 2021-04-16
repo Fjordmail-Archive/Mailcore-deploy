@@ -53,11 +53,18 @@ function main() {
 	
 	# recurrent plugin is a bit special:
 	if should_be_updated "plugins/RC-Plugin-recurrent-${dest}"; then
+		# Remove old
 		rm -rf "plugins/RC-Plugin-recurrent-${dest}"
 
+		# Get plugin
 		get_plugin "${dest}" RC-Plugin-recurrent
 		mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
 		
+		# Create $dest/plugins/recurrent
+		rm "${dest}/plugins/RC-Plugin-recurrent"
+		ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
+		
+		# Fetch config
 		[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
 	fi
 	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
