@@ -47,7 +47,6 @@ function main() {
 
 	# Fetch/update plugins
 	mkdir -p plugins
-	get_config "${dest}"
 	get_wblist "${dest}"
 	get_raim "${dest}"
 	get_recurrent "${dest}"
@@ -93,63 +92,43 @@ function get_rc() {
 		return 1
 	fi
 
-	# If current webmail does not exist or is outdated
-	if [[ "$(should_be_updated \"${dest}\")" -eq 1 ]]; then
-		# Backup old folder
+	
+	local readonly latest=$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
+	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
+	
+	# Update Roundcube if current is either outdated or nonexistant
+	if [[ -z "${current}" ]] || [[ "${latest}" -ne "${current}" ]]; then
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
 
-		# Fetch new webmail from GitHub
-		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/${repo}.git" "${dest}"
+		wget -c "https://github.com/roundcube/roundcubemail/releases/download/${latest}/roundcubemail-${latest}-complete.tar.gz" -O - | tar -xz
+		mv "roundcubemail-${latest}" "${dest}"
+		chmod -R ug+rw "${dest}/temp" "${dest}/logs"
+		rm -rf "${dest}/installer"
 
-		# Remove potential included plugins
-		rm -rf "${dest}/plugins/wblist"
-		rm -rf "${dest}/plugins/recurrent"
-		rm -rf "${dest}/raim"
-		rm -rf "${dest}/instance/password-reset"
-		rm -rf "${dest}/instance/registration"
+		# Fetch config
+		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
+		ln -s "../config/${dest}/" "${dest}/config"
 	else
-		echo "Webmail is up to date. Skipping..."
+		echo "Roundcube is up to date. Skipping..."
 	fi
 
-	return 0
-}
+	# Fetch Michael's changes if outdated
+	if should_be_updated "${dest}"; then
+		# Fetch new webmail from GitHub
+		#GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
+		#	git clone "git@github.com:Fjordmail/${repo}.git" "${dest}"
 
-#######################################
-#	Set symlink to config:
-#		app.sol.dk/config -> config/app.sol.dk/
-#		app.wemail.no/config -> config/app.wemail.no/
-#
-#	Arguments:
-#		dest (string): rc_root name
-#	Returns:
-#		1 upon error
-#		0 upon success
-#######################################
-function get_config() {
-	if [ "${#}" -ne 1 ]; then
-		err "Error: no argument provided"
-		err "Usage: get_config dest"
-		return 1
+		GIT_SSH_COMMAND="ssh -i /www/deploy_keys/mailcore_deploy_soldk_rc -o IdentitiesOnly=yes" \
+			git clone "git@github.com:Fjordmail/soldk_rc.git" "${dest}/custom"
+		
+		for f in `find "${dest}/custom/" -type f -not -path "${dest}/custom/.git*"`; do
+			# Save original file and replace
+			[[ -f "${f//\/custom/}" ]] && mv "${f//\/custom/}" "${f//\/custom/}.original"
+			mv "${f}" "${f//\/custom/}"
+		done
+	else
+		echo "Custom changes are up to date. Skipping..."
 	fi
-
-	# Check if passed dest exists
-	local readonly dest="${1}"
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if config/dest exists
-	if [[ ! -d "config/${dest}/" ]]; then
-		err "Error: config at config/"${dest}"/ does not exist"
-		return 1
-	fi
-
-	# Remove old rc_root/config
-	[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
-
-	ln -s "../config/${dest}/" "${dest}/config"
 
 	return 0
 }
@@ -190,7 +169,7 @@ function get_wblist() {
 	fi
 
 	# Check if shared plugin is out of date
-	if [[ "$(should_be_updated \"plugins/RC-Plugin-wblist\")" -eq 1 ]]; then
+	if should_be_updated "plugins/RC-Plugin-wblist"; then
 		# wblist: remove existing
 		rm -rf "${dest}/plugins/wblist/"
 		rm -rf plugins/RC-Plugin-wblist/
@@ -244,7 +223,7 @@ function get_raim() {
 	fi
 
 	# Check if raim is out of date or not existant
-	if [[ "$(should_be_updated \"plugins/raim-${dest}\")" -eq 1 ]]; then
+	if should_be_updated "plugins/raim-${dest}"; then
 		# Delete existing
 		rm -rf "plugins/raim-${dest}"
 		rm -rf "${dest}/instance/password-reset"
@@ -312,7 +291,7 @@ function get_recurrent() {
 	fi
 
 	# Check if recurrent plugin is out of date
-	if [[ "$(should_be_updated \"plugins/RC-Plugin-Recurrent-${dest}\")" -eq 1 ]]; then
+	if should_be_updated "plugins/RC-Plugin-Recurrent-${dest}"; then
 		# Recurrent: remove existing
 		rm -rf "${dest}/plugins/recurrent/"
 		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
@@ -339,12 +318,9 @@ function get_recurrent() {
 #
 #       Arguments:
 #               repo (string): repo path
-#       Output:
-#               1 if it should be updated
-#               0 otherwise
 #       Returns:
-#               1 upon success
-#               0 upon error
+#               0 if it should be updated
+#               1 otherwise
 #######################################
 function should_be_updated() {
         if [ "${#}" -ne 1 ]; then
@@ -355,11 +331,11 @@ function should_be_updated() {
 
         local readonly repo="${1}"
 
-        [[ ! -d "${repo}" ]] && echo 1 && return 0
-        [[ ! -d "${repo}/.git" ]] && echo 1 && return 0
-        [[ "$(git --git-dir=${repo}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]] && echo 1 && return 0
+        [[ ! -d "${repo}" ]] && return 0
+        [[ ! -d "${repo}/.git" ]] && return 0
+        [[ "$(git --git-dir=${repo}/.git/ status -uno | grep -c 'Your branch is up to date with ')" -ne 1 ]] && return 0
 
-        return 0
+        return 1
 }
 
 # Print to stderr
