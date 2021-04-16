@@ -80,12 +80,6 @@ function get_rc() {
 	local readonly repo="${2}"
 	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
 
-	# Check if passed dest exists
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
 	# Check if deloy key is found
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
