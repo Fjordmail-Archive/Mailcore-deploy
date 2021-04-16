@@ -86,10 +86,10 @@ function get_rc() {
 		return 1
 	fi
 
-	
+
 	local readonly latest=$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
-	
+
 	# Update Roundcube if current is either outdated or nonexistant
 	if [[ -z "${current}" ]] || [[ "${latest}" -ne "${current}" ]]; then
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
@@ -107,18 +107,19 @@ function get_rc() {
 	fi
 
 	# Fetch Michael's changes if outdated
-	if should_be_updated "${dest}"; then
+	if should_be_updated "${dest}/FMTCH"; then
 		# Fetch new webmail from GitHub
 		#GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 		#	git clone "git@github.com:Fjordmail/${repo}.git" "${dest}"
 
 		GIT_SSH_COMMAND="ssh -i /www/deploy_keys/mailcore_deploy_soldk_rc -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/soldk_rc.git" "${dest}/custom"
-		
-		for f in `find "${dest}/custom/" -type f -not -path "${dest}/custom/.git*"`; do
+			git clone "git@github.com:Fjordmail/soldk_rc.git" "${dest}/FMTCH"
+
+		for f in `find "${dest}/FMTCH/" -type f -not -path "${dest}/FMTCH/.git*"`; do
+			echo "${f}"
 			# Save original file and replace
-			[[ -f "${f//\/custom/}" ]] && mv "${f//\/custom/}" "${f//\/custom/}.original"
-			mv "${f}" "${f//\/custom/}"
+			[[ -f "${f//\/FMTCH/}" ]] && mv "${f//\/FMTCH/}" "${f//\/FMTCH/}.original"
+			mv "${f}" "${f//\/FMTCH/}"
 		done
 	else
 		echo "Custom changes are up to date. Skipping..."
