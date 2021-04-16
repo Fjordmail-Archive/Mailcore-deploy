@@ -47,13 +47,21 @@ function main() {
 
 	# Fetch/update plugins
 	mkdir -p plugins
-	get_wblist "${dest}"
+	get_plugin "${dest}" RC-Plugin-wblist
+	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
-	get_recurrent "${dest}"
+	get_plugin "${dest}" RC-Plugin-recurrent
+
+	# Fetch recurrent-plugin config and fix symlinks
+	[[ -d plugins/RC-plugin-recurrent ]] && mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
+	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
+	[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ plugins/
 	sudo chmod -R ug+rwx "${dest}" config/ plugins/
+
+	return 0
 }
 
 #######################################
@@ -76,16 +84,15 @@ function get_rc() {
 		return 1
 	fi
 
-	local readonly dest="${1}"
-	local readonly repo="${2}"
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
-
 	# Check if deloy key is found
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
+	local readonly dest="${1}"
+	local readonly repo="${2}"
 
 	local readonly latest=$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
@@ -116,7 +123,6 @@ function get_rc() {
 			git clone "git@github.com:Fjordmail/soldk_rc.git" "${dest}/FMTCH"
 
 		for f in `find "${dest}/FMTCH/" -type f -not -path "${dest}/FMTCH/.git*"`; do
-			echo "${f}"
 			# Save original file and replace
 			[[ -f "${f//\/FMTCH/}" ]] && mv "${f//\/FMTCH/}" "${f//\/FMTCH/}.original"
 			mv "${f}" "${f//\/FMTCH/}"
@@ -129,7 +135,7 @@ function get_rc() {
 }
 
 #######################################
-#	Check if current plugins/RC-Plugin-wblist if up to date
+#	Check if current plugin is up to date
 #	If not:
 #		- Delete old
 #		- Fetch new
@@ -137,16 +143,15 @@ function get_rc() {
 #
 #	Arguments:
 #		dest (string): rc_root name
+#		repo (string): name of plugin repo
 #	Returns:
 #		1 upon error
 #		0 upon success
 #######################################
-function get_wblist() {
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_wblist"
-
-	if [ "${#}" -ne 1 ]; then
+function get_plugin() {
+	if [ "${#}" -ne 2 ]; then
 		err "Error: no argument provided"
-		err "Usage: get_wblist dest"
+		err "Usage: get_plugin dest repo"
 		return 1
 	fi
 
@@ -157,27 +162,31 @@ function get_wblist() {
 		return 1
 	fi
 
-	# Check if deloy key is found
+	local readonly repo="${2}" # RC-Plugin-xxx
+	local readonly plugin_name = $(echo "${dest}" | cut -d'-' -f3) # xxx
+
+	# Check if deploy key is found
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${plugin_name}"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
 	# Check if shared plugin is out of date
-	if should_be_updated "plugins/RC-Plugin-wblist"; then
-		# wblist: remove existing
-		rm -rf "${dest}/plugins/wblist/"
-		rm -rf plugins/RC-Plugin-wblist/
+	if should_be_updated "plugins/${repo}"; then
+		# remove existing plugin
+		rm -rf "${dest}/plugins/${plugin_name}/"
+		rm -rf "plugins/${repo}/"
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-			git clone git@github.com:Fjordmail/RC-Plugin-wblist.git plugins/RC-Plugin-wblist
+			git clone "git@github.com:Fjordmail/${repo}.git plugins/${repo}"
 	else
-		echo "Wblist is up to date. Skipping..."
+		echo "${plugin_name} is up to date. Skipping..."
 	fi
 
 	# Install plugin to rc_root with a link
-	[[ ! -L "${dest}/plugins/wblist" ]] && ln -s "../../plugins/RC-Plugin-wblist" "${dest}/plugins/wblist"
+	[[ ! -L "${dest}/plugins/${plugin_name}" ]] && ln -s "../../plugins/${repo}" "${dest}/plugins/${plugin_name}"
 
 	return 0
 }
@@ -246,64 +255,6 @@ function get_raim() {
 	mkdir "${dest}/instance/"
 	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "../../plugins/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
 	[[ ! -L "${dest}/instance/registration" ]] && ln -s "../../plugins/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
-
-	return 0
-}
-
-#######################################
-#	Check if current plugins/RC-Plugin-Recurrent-$dest if up to date
-#	If not:
-#		- Delete old
-#		- Build
-#		- Link
-#
-#	Arguments:
-#		dest (string): rc_root name
-#	Returns:
-#		1 upon error
-#		0 upon success
-#######################################
-function get_recurrent() {
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_recurrent"
-
-	if [ "${#}" -ne 1 ]; then
-		err "Error: no argument provided"
-		err "Usage: get_recurrent dest"
-		return 1
-	fi
-
-	# Check if passed dest exists
-	local readonly dest="${1}"
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if deloy key is found
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
-
-	# Check if recurrent plugin is out of date
-	if should_be_updated "plugins/RC-Plugin-Recurrent-${dest}"; then
-		# Recurrent: remove existing
-		rm -rf "${dest}/plugins/recurrent/"
-		rm -rf "plugins/RC-Plugin-Recurrent-${dest}/"
-
-		# Fetch latest
-		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-			git clone git@github.com:Fjordmail/RC-Plugin-Recurrent.git "plugins/RC-Plugin-Recurrent-${dest}"
-
-		# Fetch config
-		ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-Recurrent-${dest}/vendor/Config.php"
-	else
-		echo "Recurrent plugin is up to date. Skipping..."
-	fi
-
-	# Install plugin to rc_root and fetch config
-	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-Recurrent-${dest}" "${dest}/plugins/recurrent"
-	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
 
 	return 0
 }
