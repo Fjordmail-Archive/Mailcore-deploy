@@ -50,12 +50,17 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-wblist
 	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
-	get_plugin "${dest}" RC-Plugin-recurrent
+	
+	# recurrent plugin is a bit special:
+	if should_be_updated "plugins/RC-Plugin-recurrent-${dest}"; then
+		rm -rf "plugins/RC-Plugin-recurrent-${dest}"
 
-	# Fetch recurrent-plugin config and fix symlinks
-	[[ -d plugins/RC-plugin-recurrent ]] && mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
+		get_plugin "${dest}" RC-Plugin-recurrent
+		mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
+		
+		[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
+	fi
 	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
-	[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ plugins/
