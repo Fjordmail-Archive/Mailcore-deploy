@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-set -x
+#set -x
 
 #######################################
 #	Check if webmail need to be updated
@@ -64,7 +64,7 @@ function main() {
 		mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
 		
 		# Create $dest/plugins/recurrent
-		rm "${dest}/plugins/RC-Plugin-recurrent"
+		rm "${dest}/plugins/recurrent" # this one from get_plugin is broken
 		ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
 		
 		# Fetch config
