@@ -83,5 +83,6 @@ Available repo:
     │   └── vendor/
     │       ├── Config.php -> ../../../config/app.sol.dk/recurrent-Config.php
     │       └── spa -> ../../raim-app.sol.dk/packages/account/build
-    └── RC-Plugin-wblist
+    ├── RC-Plugin-spamlevel/
+    └── RC-Plugin-wblist/
 ```
