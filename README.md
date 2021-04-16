@@ -17,8 +17,7 @@ Available repo:
 ## Todo
 
 * Check if links are valid with `test -e`;
-* Use `pull` instead of `clone` and stop backing up: we have `git` for that;
-* Check if `should_be_updated` works as intended and do some testing.
+* Use `pull` instead of `clone` for Michael's changes. Possible for RAIM? Partial build?
 
 ## Tree
 

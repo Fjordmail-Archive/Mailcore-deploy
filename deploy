@@ -51,26 +51,7 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-wblist
 	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
-	
-	# recurrent plugin is a bit special:
-	if should_be_updated "plugins/RC-Plugin-recurrent-${dest}"; then
-		echo "Configuring RC-Plugin-recurrent-${dest}"
-
-		# Remove old
-		[[ -d "plugins/RC-Plugin-recurrent-${dest}" ]] && rm -rf "plugins/RC-Plugin-recurrent-${dest}"
-
-		# Get plugin
-		get_plugin "${dest}" RC-Plugin-recurrent
-		mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
-		
-		 # this one from get_plugin is broken
-		rm "${dest}/plugins/recurrent"
-		
-		# Fetch config
-		[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
-		[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
-	fi
-	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
+	get_recurrent
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ plugins/
@@ -130,8 +111,11 @@ function get_rc() {
 		echo "Roundcube is up to date. Skipping..."
 	fi
 
-	# Fetch Michael's changes if outdated
+	# Fetch Michael's changes if current is outdated
 	if should_be_updated "${dest}/FMTCH"; then
+		# Delete existing
+		[[ -d "${dest}/FMTCH" ]] && rm -rf "${dest}/FMTCH"
+
 		# Fetch new webmail from GitHub
 		#GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
 		#	git clone "git@github.com:Fjordmail/${repo}.git" "${dest}"
@@ -190,17 +174,12 @@ function get_plugin() {
 		return 1
 	fi
 
-	# Check if shared plugin is out of date
-	if should_be_updated "plugins/${repo}"; then
-		# remove existing plugin
-		[[ -L "${dest}/plugins/${plugin_name}/" ]] && rm "${dest}/plugins/${plugin_name}/"
-		[[ -d "plugins/${repo}/" ]] && rm -rf "plugins/${repo}/"
-
-		# Fetch latest
-		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
+	# Update if the plugin exists, clone otherwise
+	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
+	if [[ -d "plugins/${repo}" ]]; then
+		git -C "plugins/${repo}" pull "git@github.com:Fjordmail/${repo}.git" master
 	else
-		echo "${plugin_name} is up to date. Skipping..."
+		git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
 	fi
 
 	# Install plugin to rc_root with a link
@@ -275,6 +254,60 @@ function get_raim() {
 	mkdir -p "${dest}/instance/"
 	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "../../plugins/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
 	[[ ! -L "${dest}/instance/registration" ]] && ln -s "../../plugins/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
+
+	return 0
+}
+
+#######################################
+#	Get and update recurrent plugin
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
+function get_recurrent() {
+	if [ "${#}" -ne 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_recurrent dest"
+		return 1
+	fi
+
+	local readonly dest="${1}"
+	echo "Updating plugin (RC-Plugin-recurrent)..."
+
+	# Check if passed dest exists
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if deploy key is found
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_recurrent"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
+		return 1
+	fi
+
+	# Remove links, so the local repo can be updated
+	[[ -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && rm "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
+	[[ -L "plugins/RC-Plugin-recurrent-${dest}/vendor/spa" ]] && rm "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
+
+	# Fetch latest
+	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
+	if [[ -d "plugins/RC-Plugin-recurrent-${dest}" ]]; then
+		git -C "plugins/RC-Plugin-recurrent-${dest}" pull "git@github.com:Fjordmail/RC-Plugin-recurrent.git" master
+	else
+		git clone "git@github.com:Fjordmail/RC-Plugin-recurrent.git" "plugins/RC-Plugin-recurrent-${dest}"
+	fi
+	
+	# Recreate the links
+	ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
+	ln -s "../../raim-${dest}/packages/account/build" "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
+
+	# Install plugin to rc_root/plugins
+	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
 
 	return 0
 }
