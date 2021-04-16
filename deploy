@@ -84,15 +84,15 @@ function get_rc() {
 		return 1
 	fi
 
+	local readonly dest="${1}"
+	local readonly repo="${2}"
+
 	# Check if deloy key is found
 	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
-
-	local readonly dest="${1}"
-	local readonly repo="${2}"
 
 	local readonly latest=$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
