@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 #######################################
 #	Check if webmail need to be updated
@@ -54,7 +55,7 @@ function main() {
 	# recurrent plugin is a bit special:
 	if should_be_updated "plugins/RC-Plugin-recurrent-${dest}"; then
 		echo "Configuring RC-Plugin-recurrent-${dest}"
-		
+
 		# Remove old
 		[[ -d "plugins/RC-Plugin-recurrent-${dest}" ]] && rm -rf "plugins/RC-Plugin-recurrent-${dest}"
 
