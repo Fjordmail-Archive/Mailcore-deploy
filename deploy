@@ -115,7 +115,7 @@ function get_rc() {
 	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
 
 	# Update Roundcube if current is either outdated or nonexistant
-	if [[ -z "${current}" ]] || [[ "${latest}" -ne "${current}" ]]; then
+	if [[ -z "${current}" ]] || [[ "${latest}" != "${current}" ]]; then
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
 
 		wget -c "https://github.com/roundcube/roundcubemail/releases/download/${latest}/roundcubemail-${latest}-complete.tar.gz" -O - | tar -xz
