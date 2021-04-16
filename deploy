@@ -63,14 +63,14 @@ function main() {
 		get_plugin "${dest}" RC-Plugin-recurrent
 		mv plugins/RC-Plugin-recurrent "plugins/RC-Plugin-recurrent-${dest}"
 		
-		# Create $dest/plugins/recurrent
-		rm "${dest}/plugins/recurrent" # this one from get_plugin is broken
-		ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
+		 # this one from get_plugin is broken
+		rm "${dest}/plugins/recurrent"
 		
 		# Fetch config
 		[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
+		[[ ! -L "plugins/RC-Plugin-recurrent-${dest}/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
 	fi
-	[[ ! -L "${dest}/plugins/recurrent/vendor/spa" ]] && ln -s "../../raim-${dest}/packages/account/build" "${dest}/plugins/recurrent/vendor/spa"
+	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ plugins/
