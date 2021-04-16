@@ -159,7 +159,7 @@ function get_plugin() {
 
 	local readonly dest="${1}"
 	local readonly repo="${2}" # RC-Plugin-xxx
-	local readonly plugin_name=$(echo "${dest}" | cut -d'-' -f3) # xxx
+	local readonly plugin_name=$(echo "${repo}" | cut -d'-' -f3) # xxx
 	echo "Updating plugin (${2})..."
 
 	# Check if passed dest exists
