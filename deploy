@@ -183,7 +183,7 @@ function get_plugin() {
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/${repo}.git plugins/${repo}"
+			git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
 	else
 		echo "${plugin_name} is up to date. Skipping..."
 	fi
