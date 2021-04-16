@@ -53,6 +53,8 @@ function main() {
 	
 	# recurrent plugin is a bit special:
 	if should_be_updated "plugins/RC-Plugin-recurrent-${dest}"; then
+		echo "Configuring RC-Plugin-recurrent-${dest}"
+		
 		# Remove old
 		[[ -d "plugins/RC-Plugin-recurrent-${dest}" ]] && rm -rf "plugins/RC-Plugin-recurrent-${dest}"
 
@@ -190,7 +192,7 @@ function get_plugin() {
 	# Check if shared plugin is out of date
 	if should_be_updated "plugins/${repo}"; then
 		# remove existing plugin
-		[[ -d "${dest}/plugins/${plugin_name}/" ]] && rm -rf "${dest}/plugins/${plugin_name}/"
+		[[ -L "${dest}/plugins/${plugin_name}/" ]] && rm "${dest}/plugins/${plugin_name}/"
 		[[ -d "plugins/${repo}/" ]] && rm -rf "plugins/${repo}/"
 
 		# Fetch latest
