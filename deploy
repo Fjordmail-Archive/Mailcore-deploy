@@ -111,7 +111,7 @@ function get_rc() {
 		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
 		ln -s "../config/${dest}/" "${dest}/config"
 	else
-		echo "Roundcube is up to date. Skipping..."
+		echo "Already up to date."
 	fi
 
 	return 0
@@ -290,7 +290,7 @@ function get_raim() {
 		yarn build
 		cd ../../
 	else
-		echo "RAIM is up to date. Skipping..."
+		echo "Already up to date."
 	fi
 
 	# Install plugin to rc_root with links
