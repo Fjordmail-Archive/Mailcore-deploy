@@ -52,7 +52,7 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-wblist
 	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
-	get_recurrent
+	get_recurrent "${dest}"
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ plugins/
