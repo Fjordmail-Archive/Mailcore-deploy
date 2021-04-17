@@ -43,7 +43,7 @@ function main() {
 		return 1
 	fi
 
-	echo -e "Updating ${dest}\n"
+	echo -e "UPDATING WEBMAIL: ${dest}\n"
 
 	# Fetch/update webmail
 	get_rc "${dest}" "${1}"
