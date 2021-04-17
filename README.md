@@ -16,8 +16,7 @@ Available repo:
 
 ## Todo
 
-* Check if links are valid with `test -e`;
-* Use `pull` instead of `clone` for Michael's changes. Possible for RAIM? Partial build?
+* Use `pull` instead of `clone` for RAIM? Partial build?
 
 ## Tree
 
@@ -37,6 +36,7 @@ Omitting most common files:
 │   └── program/
 │       └── localization/
 │       └── da_DK/
+│           ├── labels.inc.original
 │           └── labels.inc -> ../../../skins/app.sol.dk/program/localization/da_DK/labels.inc
 ├── app.wemail.no/
 ├── config/
