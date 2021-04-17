@@ -21,35 +21,25 @@ Available repo:
 
 ## Tree
 
+Omitting most common files:
+
 ```bash
 .
-├── app.sol.dk/ # RC root for Sol.dk - some directories are omitted
+├── app.sol.dk/ # RC root for Sol.dk
 │   ├── config -> ../config/app.sol.dk
 │   ├── instance/
 │   │   ├── password-reset -> ../../plugins/raim-app.sol.dk/packages/password-reset/build/
 │   │   └── registration -> ../../plugins/raim-app.sol.dk/packages/registration/build/
-│   └── plugins/
-│       ├── archive/
-│       ├── automatic_addressbook/
-│       ├── calendar/
-│       ├── export_provisioning/
-│       ├── hotkeys/
-│       ├── identicon/
-│       ├── jqueryui/
-│       ├── libkolab/
-│       ├── mailia_expire/
-│       ├── mailia_info/
-│       ├── mailia_login/
-│       ├── managesieve/
-│       ├── message_highlight/
-│       ├── password/
-│       ├── persistent_login/
-│       ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk/
-│       ├── spamlevel/ -> ../../plugins/RC-Plugin-spamlevel/
-│       ├── swipe/
-│       └── wblist -> ../../plugins/RC-Plugin-wblist/
-├── app.wemail.no/ # RC root for Wemail
-├── config/ # Config for each webmail is stored here
+│   ├── plugins/
+│   │   ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk/
+│   │   ├── spamlevel/ -> ../../plugins/RC-Plugin-spamlevel/
+│   │   └── wblist -> ../../plugins/RC-Plugin-wblist/
+│   └── program/
+│       └── localization/
+│       └── da_DK/
+│           └── labels.inc -> ../../../skins/app.sol.dk/program/localization/da_DK/labels.inc
+├── app.wemail.no/
+├── config/
 │   ├── app.sol.dk/
 │   │   ├── config.inc.php
 │   │   ├── config.inc.php.sample
@@ -63,25 +53,28 @@ Available repo:
 │   └── app.wemail.no/
 ├── deploy # This deploy script
 ├── deploy_keys/
-└── plugins/ # Each custom plugin is stored here
-    ├── raim-app.sol.dk/
-    │   ├── packages/
-    │   │   ├── account/
-    │   │   │   └── build/
-    │   │   ├── password-reset/
-    │   │   │   ├── .env -> ../../../../config/app.sol.dk/raim_password-reset.env
-    │   │   │   └── build/
-    │   │   ├── payment-page/
-    │   │   ├── registration/
-    │   │   │   ├── .env -> ../../../../config/app.sol.dk/raim_registration.env
-    │   │   │   └── build/
-    │   │   └── shared/
-    │   │       └── src/
-    │   │           └── config.js -> ../../../../../config/app.sol.dk/raim_shared_config.js
-    ├── RC-Plugin-Recurrent-app.sol.dk/
-    │   └── vendor/
-    │       ├── Config.php -> ../../../config/app.sol.dk/recurrent-Config.php
-    │       └── spa -> ../../raim-app.sol.dk/packages/account/build/
-    ├── RC-Plugin-spamlevel/
-    └── RC-Plugin-wblist/
+├── plugins/ # Each custom plugin is stored here
+│   ├── raim-app.sol.dk/
+│   │   ├── packages/
+│   │   │   ├── account/
+│   │   │   │   └── build/
+│   │   │   ├── password-reset/
+│   │   │   │   ├── .env -> ../../../../config/app.sol.dk/raim_password-reset.env
+│   │   │   │   └── build/
+│   │   │   ├── payment-page/
+│   │   │   ├── registration/
+│   │   │   │   ├── .env -> ../../../../config/app.sol.dk/raim_registration.env
+│   │   │   │   └── build/
+│   │   │   └── shared/
+│   │   │       └── src/
+│   │   │           └── config.js -> ../../../../../config/app.sol.dk/raim_shared_config.js
+│   ├── RC-Plugin-Recurrent-app.sol.dk/
+│   │   └── vendor/
+│   │       ├── Config.php -> ../../../config/app.sol.dk/recurrent-Config.php
+│   │       └── spa -> ../../raim-app.sol.dk/packages/account/build/
+│   ├── RC-Plugin-spamlevel/
+│   └── RC-Plugin-wblist/
+└── skins/
+    ├── app.sol.dk/
+    └── app.wemail.no/
 ```

@@ -45,6 +45,7 @@ function main() {
 
 	# Fetch/update webmail
 	get_rc "${dest}" "${1}"
+	get_skin "${dest}"
 
 	# Fetch/update plugins
 	mkdir -p plugins
@@ -111,26 +112,62 @@ function get_rc() {
 		echo "Roundcube is up to date. Skipping..."
 	fi
 
-	# Fetch Michael's changes if current is outdated
-	if should_be_updated "${dest}/FMTCH"; then
-		# Delete existing
-		[[ -d "${dest}/FMTCH" ]] && rm -rf "${dest}/FMTCH"
+	return 0
+}
 
-		# Fetch new webmail from GitHub
-		#GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
-		#	git clone "git@github.com:Fjordmail/${repo}.git" "${dest}"
-
-		GIT_SSH_COMMAND="ssh -i /www/deploy_keys/mailcore_deploy_soldk_rc -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/soldk_rc.git" "${dest}/FMTCH"
-
-		for f in `find "${dest}/FMTCH/" -type f -not -path "${dest}/FMTCH/.git*"`; do
-			# Save original file and replace
-			[[ -f "${f//\/FMTCH/}" ]] && mv "${f//\/FMTCH/}" "${f//\/FMTCH/}.original"
-			mv "${f}" "${f//\/FMTCH/}"
-		done
-	else
-		echo "Custom changes are up to date. Skipping..."
+#######################################
+#	Get skin and language file
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
+function get_skin() {
+	if [ "${#}" -ne 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_skin dest"
+		return 1
 	fi
+
+	local readonly dest="${1}"
+	echo "Updating skin and lang..."
+
+	# Check if passed dest exists
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if deploy key is found
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_skin_${dest}"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
+		return 1
+	fi
+
+	# Update if the plugin exists, clone otherwise
+	mkdir -p skins/
+	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
+	if [[ -d "plugins/${dest}" ]]; then
+		git -C "skins/${dest}" pull origin master
+	else
+		git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
+	fi
+
+	# Link changed files from rc_root to skins/$dest
+	for f in `find "skins/${dest}/" -type f -not -path "skins/${dest}/.git*"`; do
+		# $f = skins/app.sol.dk/file
+		# $to = app.sol.dk/file
+		local to=$(echo "${f}" | cut -d'/' -f2-)
+
+		# If $to is not a link but an existing file (= original from RC) -> back up
+		[[ ! -L "${to}" ]] && [[ -f "${to}" ]] && mv "${to}" "${to}.original"
+		
+		# Otherwise, if $to is already a link -> skip. If not, create link
+		[[ ! -L "${to}" ]] && ln -s "/www/${f}" "${to}"
+	done
 
 	return 0
 }
@@ -175,9 +212,10 @@ function get_plugin() {
 	fi
 
 	# Update if the plugin exists, clone otherwise
+	mkdir -p plugins/
 	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
 	if [[ -d "plugins/${repo}" ]]; then
-		git -C "plugins/${repo}" pull "git@github.com:Fjordmail/${repo}.git" master
+		git -C "plugins/${repo}" pull origin master
 	else
 		git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
 	fi
@@ -297,7 +335,7 @@ function get_recurrent() {
 	# Fetch latest
 	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
 	if [[ -d "plugins/RC-Plugin-recurrent-${dest}" ]]; then
-		git -C "plugins/RC-Plugin-recurrent-${dest}" pull "git@github.com:Fjordmail/RC-Plugin-recurrent.git" master
+		git -C "plugins/RC-Plugin-recurrent-${dest}" pull origin master
 	else
 		git clone "git@github.com:Fjordmail/RC-Plugin-recurrent.git" "plugins/RC-Plugin-recurrent-${dest}"
 	fi
