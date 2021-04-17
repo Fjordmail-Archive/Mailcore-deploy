@@ -151,7 +151,7 @@ function get_skin() {
 	mkdir -p skins/
 	if [[ -d "plugins/${dest}" ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git -C "skins/${dest}" pull origin master
+			git -C "skins/${dest}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
@@ -216,7 +216,7 @@ function get_plugin() {
 	mkdir -p plugins/
 	if [[ -d "plugins/${repo}" ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git -C "plugins/${repo}" pull origin master
+			git -C "plugins/${repo}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
@@ -337,7 +337,7 @@ function get_recurrent() {
 	# Fetch latest
 	if [[ -d "plugins/RC-Plugin-recurrent-${dest}" ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git -C "plugins/RC-Plugin-recurrent-${dest}" pull origin master
+			git -C "plugins/RC-Plugin-recurrent-${dest}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone "git@github.com:Fjordmail/RC-Plugin-recurrent.git" "plugins/RC-Plugin-recurrent-${dest}"
