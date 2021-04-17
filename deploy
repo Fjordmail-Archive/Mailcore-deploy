@@ -43,6 +43,8 @@ function main() {
 		return 1
 	fi
 
+	echo "Updating ${dest}"
+
 	# Fetch/update webmail
 	get_rc "${dest}" "${1}"
 	get_skin "${dest}"
@@ -84,7 +86,7 @@ function get_rc() {
 	local readonly dest="${1}"
 	local readonly repo="${2}"
 
-	echo "Updating webmail (${2})..."
+	echo "Updating Roundcube:"
 
 	# Check if deloy key is found
 	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
@@ -109,7 +111,7 @@ function get_rc() {
 		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
 		ln -s "../config/${dest}/" "${dest}/config"
 	else
-		echo "Roundcube is up to date. Skipping..."
+		echo -e "Roundcube is up to date. Skipping...\n"
 	fi
 
 	return 0
@@ -132,7 +134,7 @@ function get_skin() {
 	fi
 
 	local readonly dest="${1}"
-	echo "Updating skin and lang..."
+	echo -e "\nUpdating skin and lang:"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -197,7 +199,8 @@ function get_plugin() {
 	local readonly dest="${1}"
 	local readonly repo="${2}" # RC-Plugin-xxx
 	local readonly plugin_name=$(echo "${repo}" | cut -d'-' -f3) # xxx
-	echo "Updating plugin (${2})..."
+	
+	echo -e "\nUpdating ${2}):"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -250,7 +253,7 @@ function get_raim() {
 		return 1
 	fi
 
-	echo "Updating RAIM..."
+	echo -e "\nUpdating RAIM:"
 
 	# Check if passed dest exists
 	local readonly dest="${1}"
@@ -315,7 +318,7 @@ function get_recurrent() {
 	fi
 
 	local readonly dest="${1}"
-	echo "Updating plugin (RC-Plugin-recurrent)..."
+	echo -e "\nUpdating RC-Plugin-recurrent:"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
