@@ -149,11 +149,12 @@ function get_skin() {
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p skins/
-	local readonly GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
 	if [[ -d "plugins/${dest}" ]]; then
-		"${GIT_SSH_COMMAND}" git -C "skins/${dest}" pull origin master
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git -C "skins/${dest}" pull origin master
 	else
-		"${GIT_SSH_COMMAND}" git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
 	fi
 
 	# Link changed files from rc_root to skins/$dest
@@ -164,7 +165,7 @@ function get_skin() {
 
 		# If $to is not a link but an existing file (= original from RC) -> back up
 		[[ ! -L "${to}" ]] && [[ -f "${to}" ]] && mv "${to}" "${to}.original"
-		
+
 		# Otherwise, if $to is already a link -> skip. If not, create link
 		[[ ! -L "${to}" ]] && ln -s "/www/${f}" "${to}"
 	done
@@ -213,11 +214,12 @@ function get_plugin() {
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p plugins/
-	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
 	if [[ -d "plugins/${repo}" ]]; then
-		git -C "plugins/${repo}" pull origin master
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git -C "plugins/${repo}" pull origin master
 	else
-		git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
 	fi
 
 	# Install plugin to rc_root with a link
@@ -271,7 +273,7 @@ function get_raim() {
 		rm -rf "${dest}/instance/registration"
 
 		# Fetch latest
-		GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
 
 		# Fetch raim config
@@ -333,13 +335,14 @@ function get_recurrent() {
 	[[ -L "plugins/RC-Plugin-recurrent-${dest}/vendor/spa" ]] && rm "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
 
 	# Fetch latest
-	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
 	if [[ -d "plugins/RC-Plugin-recurrent-${dest}" ]]; then
-		git -C "plugins/RC-Plugin-recurrent-${dest}" pull origin master
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git -C "plugins/RC-Plugin-recurrent-${dest}" pull origin master
 	else
-		git clone "git@github.com:Fjordmail/RC-Plugin-recurrent.git" "plugins/RC-Plugin-recurrent-${dest}"
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git clone "git@github.com:Fjordmail/RC-Plugin-recurrent.git" "plugins/RC-Plugin-recurrent-${dest}"
 	fi
-	
+
 	# Recreate the links
 	ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
 	ln -s "../../raim-${dest}/packages/account/build" "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
