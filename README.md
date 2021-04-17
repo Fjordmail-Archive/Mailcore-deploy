@@ -64,9 +64,9 @@ Omitting most common files:
 │   │   └── wblist -> ../../plugins/RC-Plugin-wblist/
 │   └── program/
 │       └── localization/
-│       └── da_DK/
-│           ├── labels.inc.original
-│           └── labels.inc -> ../../../skins/app.sol.dk/program/localization/da_DK/labels.inc
+│           └── da_DK/
+│               ├── labels.inc.original
+│               └── labels.inc -> ../../../skins/app.sol.dk/program/localization/da_DK/labels.inc
 ├── app.wemail.no/
 ├── config/
 │   ├── app.sol.dk/
