@@ -2,16 +2,45 @@
 
 ## Description
 
-Checks if webmail and plugins are up to date.  
-If the webmail is to be updated, creates a backup.
+1. Checks if RoundCube version is latest;
+2. Fetch/update custom changes (skin and lang) and back up original RC files;
+3. Fetch/update plugins: RC-Plugin-wblist, RC-Plugin-spamlevel;
+4. Fetch/update RAIM;
+5. Fetch/update RC-Plugin-recurrent.
+
 
 ## Usage
 
-```sh
+```console
 Usage: ./deploy repo
 Available repo:
         Sol.dk-RC
         Wemail-RC
+```
+
+## Example
+
+```console
+$ ./deploy Sol.dk-RC
+UPDATING WEBMAIL: app.sol.dk
+
+Updating Roundcube:
+Already up to date.
+
+Updating skin and lang:
+Already up to date.
+
+Updating RC-Plugin-wblist:
+Already up to date.
+
+Updating RC-Plugin-spamlevel:
+Already up to date.
+
+Updating RAIM:
+Already up to date.
+
+Updating RC-Plugin-recurrent:
+Already up to date.
 ```
 
 ## Todo
