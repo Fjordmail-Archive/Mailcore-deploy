@@ -3,9 +3,7 @@ set -e
 #set -x
 
 #######################################
-#	Check if webmail need to be updated
-#	Check if plugins need to be updated
-#	Backs up current webmail if it need to be updated
+#	See README.me
 #
 #	Arguments:
 #		repo (string): repo name
@@ -63,10 +61,8 @@ function main() {
 }
 
 #######################################
-#	Check if current webmail if up to date
-#	If not:
-#		- Delete old
-#		- Fetch new
+#	Check if current RoundCube if up to date
+#	If not: delete and fetch latest release
 #
 #	Arguments:
 #		dest (string): rc_root name
@@ -117,7 +113,8 @@ function get_rc() {
 }
 
 #######################################
-#	Get skin and language file
+#	Fetch/Update skin and language files
+#	Link from rc_root
 #
 #	Arguments:
 #		dest (string): rc_root name
@@ -175,11 +172,7 @@ function get_skin() {
 }
 
 #######################################
-#	Check if current plugin is up to date
-#	If not:
-#		- Delete old
-#		- Fetch new
-#		- Link from rc_root/plugins/wblist
+#	Fetch/Update plugin and link from rc_root
 #
 #	Arguments:
 #		dest (string): rc_root name
@@ -235,7 +228,7 @@ function get_plugin() {
 #	If not:
 #		- Delete old
 #		- Build
-#		- Link
+#		- Link from rc_root
 #
 #	Arguments:
 #		dest (string): rc_root name
@@ -301,7 +294,8 @@ function get_raim() {
 }
 
 #######################################
-#	Get and update recurrent plugin
+#	Fetch/Update RC-Plugin-recurrent
+#	Create required links
 #
 #	Arguments:
 #		dest (string): rc_root name
