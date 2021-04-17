@@ -43,7 +43,7 @@ function main() {
 		return 1
 	fi
 
-	echo "Updating ${dest}"
+	echo -e "Updating ${dest}\n"
 
 	# Fetch/update webmail
 	get_rc "${dest}" "${1}"
@@ -111,7 +111,7 @@ function get_rc() {
 		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
 		ln -s "../config/${dest}/" "${dest}/config"
 	else
-		echo -e "Roundcube is up to date. Skipping...\n"
+		echo "Roundcube is up to date. Skipping..."
 	fi
 
 	return 0
