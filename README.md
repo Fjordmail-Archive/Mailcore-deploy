@@ -58,7 +58,7 @@ Omitting most common files:
 │   ├── instance/
 │   │   ├── password-reset -> ../../plugins/raim-app.sol.dk/packages/password-reset/build/
 │   │   └── registration -> ../../plugins/raim-app.sol.dk/packages/registration/build/
-│   ├── plugins/
+│   ├── plugins/ # Only showing custom plugins
 │   │   ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk/
 │   │   ├── spamlevel/ -> ../../plugins/RC-Plugin-spamlevel/
 │   │   └── wblist -> ../../plugins/RC-Plugin-wblist/
@@ -66,8 +66,8 @@ Omitting most common files:
 │       └── localization/
 │           └── da_DK/
 │               ├── labels.inc.original
-│               └── labels.inc -> ../../../skins/app.sol.dk/program/localization/da_DK/labels.inc
-├── app.wemail.no/
+│               └── labels.inc -> ../../../skins/app.sol.dk/program/localization/da_DK/labels.inc # Each file in skin repo is linked to from rc_root
+├── app.wemail.no/ # RC root for Wemail.no
 ├── config/
 │   ├── app.sol.dk/
 │   │   ├── config.inc.php
@@ -82,28 +82,30 @@ Omitting most common files:
 │   └── app.wemail.no/
 ├── deploy # This deploy script
 ├── deploy_keys/
-├── plugins/ # Each custom plugin is stored here
-│   ├── raim-app.sol.dk/
-│   │   ├── packages/
-│   │   │   ├── account/
-│   │   │   │   └── build/
-│   │   │   ├── password-reset/
-│   │   │   │   ├── .env -> ../../../../config/app.sol.dk/raim_password-reset.env
-│   │   │   │   └── build/
-│   │   │   ├── payment-page/
-│   │   │   ├── registration/
-│   │   │   │   ├── .env -> ../../../../config/app.sol.dk/raim_registration.env
-│   │   │   │   └── build/
-│   │   │   └── shared/
-│   │   │       └── src/
-│   │   │           └── config.js -> ../../../../../config/app.sol.dk/raim_shared_config.js
-│   ├── RC-Plugin-Recurrent-app.sol.dk/
+├── plugins/ # Plugin repos
+│   ├── raim-app.sol.dk/ # Repo: RAIM, built for Sol
+│   │   └── packages/
+│   │       ├── account/
+│   │       │   └── build/
+│   │       ├── password-reset/
+│   │       │   ├── .env -> ../../../../config/app.sol.dk/raim_password-reset.env
+│   │       │   └── build/
+│   │       ├── payment-page/
+│   │       ├── registration/
+│   │       │   ├── .env -> ../../../../config/app.sol.dk/raim_registration.env
+│   │       │   └── build/
+│   │       └── shared/
+│   │           └── src/
+│   │               └── config.js -> ../../../../../config/app.sol.dk/raim_shared_config.js
+│   ├── raim-app.wemail.no/ # Repo: RAIM, built for Wemail
+│   ├── RC-Plugin-Recurrent-app.sol.dk/ # Repo: RC-Plugin-Recurrent, configured for Sol
 │   │   └── vendor/
 │   │       ├── Config.php -> ../../../config/app.sol.dk/recurrent-Config.php
 │   │       └── spa -> ../../raim-app.sol.dk/packages/account/build/
-│   ├── RC-Plugin-spamlevel/
-│   └── RC-Plugin-wblist/
-└── skins/
-    ├── app.sol.dk/
-    └── app.wemail.no/
+│   ├── RC-Plugin-Recurrent-app.wemail.no/ # Repo: RC-Plugin-Recurrent, configured for Wemail
+│   ├── RC-Plugin-spamlevel/ # Repo: RC-Plugin-spamlevel
+│   └── RC-Plugin-wblist/ # Repo: RC-Plugin-wblist
+└── skins/ # Skin repos
+    ├── app.sol.dk/ # Repo: RC-Skin-app.sol.dk
+    └── app.wemail.no/ # Repo: RC-Skin-app.wemail.no
 ```
