@@ -2,11 +2,11 @@
 
 ## Description
 
-1. Checks if RoundCube version is latest;
-2. Fetch/update custom changes (skin and lang) and back up original RC files;
-3. Fetch/update plugins: RC-Plugin-wblist, RC-Plugin-spamlevel;
-4. Fetch/update RAIM;
-5. Fetch/update RC-Plugin-recurrent.
+1. Checks if [RoundCube](https://github.com/roundcube/roundcubemail/releases/tag/1.4.11) version is latest;
+2. Fetch/update [custom changes](https://github.com/Fjordmail/RC-Skin-app.sol.dk) (skin and lang) and back up original RC files;
+3. Fetch/update plugins: [RC-Plugin-wblist](https://github.com/Fjordmail/RC-Plugin-wblist), [RC-Plugin-spamlevel](https://github.com/Fjordmail/RC-Plugin-spamlevel);
+4. Fetch/update [RAIM](https://github.com/Fjordmail/RAIM);
+5. Fetch/update [RC-Plugin-recurrent](https://github.com/Fjordmail/RC-Plugin-recurrent).
 
 
 ## Usage
