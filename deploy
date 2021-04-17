@@ -50,7 +50,6 @@ function main() {
 	get_skin "${dest}"
 
 	# Fetch/update plugins
-	mkdir -p plugins
 	get_plugin "${dest}" RC-Plugin-wblist
 	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
