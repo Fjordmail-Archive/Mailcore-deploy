@@ -26,8 +26,8 @@ Available repo:
 ├── app.sol.dk/ # RC root for Sol.dk - some directories are omitted
 │   ├── config -> ../config/app.sol.dk
 │   ├── instance/
-│   │   ├── password-reset -> ../../plugins/raim-app.sol.dk/packages/password-reset/build
-│   │   └── registration -> ../../plugins/raim-app.sol.dk/packages/registration/build
+│   │   ├── password-reset -> ../../plugins/raim-app.sol.dk/packages/password-reset/build/
+│   │   └── registration -> ../../plugins/raim-app.sol.dk/packages/registration/build/
 │   └── plugins/
 │       ├── archive/
 │       ├── automatic_addressbook/
@@ -44,10 +44,10 @@ Available repo:
 │       ├── message_highlight/
 │       ├── password/
 │       ├── persistent_login/
-│       ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk
-│       ├── spamlevel/
+│       ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk/
+│       ├── spamlevel/ -> ../../plugins/RC-Plugin-spamlevel/
 │       ├── swipe/
-│       └── wblist -> ../../plugins/RC-Plugin-wblist
+│       └── wblist -> ../../plugins/RC-Plugin-wblist/
 ├── app.wemail.no/ # RC root for Wemail
 ├── config/ # Config for each webmail is stored here
 │   ├── app.sol.dk/
@@ -81,7 +81,7 @@ Available repo:
     ├── RC-Plugin-Recurrent-app.sol.dk/
     │   └── vendor/
     │       ├── Config.php -> ../../../config/app.sol.dk/recurrent-Config.php
-    │       └── spa -> ../../raim-app.sol.dk/packages/account/build
+    │       └── spa -> ../../raim-app.sol.dk/packages/account/build/
     ├── RC-Plugin-spamlevel/
     └── RC-Plugin-wblist/
 ```
