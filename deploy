@@ -149,11 +149,11 @@ function get_skin() {
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p skins/
-	GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
+	local readonly GIT_SSH_COMMAND="ssh -i ${deploy_key} -o IdentitiesOnly=yes"
 	if [[ -d "plugins/${dest}" ]]; then
-		git -C "skins/${dest}" pull origin master
+		"${GIT_SSH_COMMAND}" git -C "skins/${dest}" pull origin master
 	else
-		git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
+		"${GIT_SSH_COMMAND}" git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
 	fi
 
 	# Link changed files from rc_root to skins/$dest
