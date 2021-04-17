@@ -149,7 +149,7 @@ function get_skin() {
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p skins/
-	if [[ -d "plugins/${dest}" ]]; then
+	if [[ -d "skins/${dest}" ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git -C "skins/${dest}" pull
 	else
