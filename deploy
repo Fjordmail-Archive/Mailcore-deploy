@@ -44,7 +44,7 @@ function main() {
 	echo -e "UPDATING WEBMAIL: ${dest}\n"
 
 	# Fetch/update webmail
-	get_rc "${dest}" "${1}"
+	get_rc "${dest}"
 	get_skin "${dest}"
 	get_lang "${dest}"
 
