@@ -149,7 +149,7 @@ function get_skin() {
 	fi
 
 	# Put skin in rc_root/skins/
-	for f in `command ls -d repos/RC-Skin/skins/*`;
+	for f in `command ls -d repos/RC-Skin/skins/*`; do
 		# $f = repos/RC-Skin/skins/sol
 		# $skin = sol
 
