@@ -55,8 +55,8 @@ function main() {
 	get_recurrent "${dest}"
 
 	# Fix permissions
-	sudo chown -R www-data:www-data "${dest}" config/ plugins/
-	sudo chmod -R ug+rwx "${dest}" config/ plugins/
+	sudo chown -R www-data:www-data "${dest}" config/ repos/
+	sudo chmod -R ug+rwx "${dest}" config/ repos/
 
 	return 0
 }
