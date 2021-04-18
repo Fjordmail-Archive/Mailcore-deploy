@@ -2,7 +2,7 @@
 
 ## Description
 
-1. Checks if [RoundCube](https://github.com/roundcube/roundcubemail/releases/tag/1.4.11) version is latest;
+1. Fetch/update [RoundCube](https://github.com/roundcube/roundcubemail/releases/tag/1.4.11) to latest from upstream;
 2. Fetch/update custom changes to skin and lang ([RC-Skin-app.sol.dk](https://github.com/Fjordmail/RC-Skin-app.sol.dk)) and back up original RC files;
 3. Fetch/update plugins: [RC-Plugin-wblist](https://github.com/Fjordmail/RC-Plugin-wblist), [RC-Plugin-spamlevel](https://github.com/Fjordmail/RC-Plugin-spamlevel);
 4. Fetch/update [RAIM](https://github.com/Fjordmail/RAIM);
@@ -28,7 +28,18 @@ Updating Roundcube:
 Already up to date.
 
 Updating skin and lang:
-Already up to date.
+remote: Enumerating objects: 13, done.
+remote: Counting objects: 100% (13/13), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 7 (delta 4), reused 7 (delta 4), pack-reused 0
+Unpacking objects: 100% (7/7), done.
+From github.com:Fjordmail/RC-Skin-app.sol.dk
+   0e7d9f5..ab38642  master     -> origin/master
+Updating 0e7d9f5..ab38642
+Fast-forward
+ skins/elastic/styles/layout.less | 2 +-
+ skins/elastic/styles/styles.css  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 Updating RC-Plugin-wblist:
 Already up to date.
@@ -45,7 +56,7 @@ Already up to date.
 
 ## Todo
 
-* Use `pull` instead of `clone` for RAIM? Partial build?
+* Try to reuse get_plugin for RC-Plugin-recurrent
 
 ## Tree
 
