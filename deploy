@@ -209,14 +209,14 @@ function get_lang() {
 	# Link changed files from rc_root
 	for f in `find repos/RC-Lang/ -type f -not -path "repos/RC-Lang/.git*"`; do
 		# $f = repos/RC-Lang/dir/file
-		# $to = dir/file
+		# $to = $dest/dir/file
 		local to="${dest}/$(echo ${f} | cut -d'/' -f3-)"
 
-		# If $to is not a link but an existing file (= original from RC) -> back up
-		[[ ! -L "${to}" ]] && [[ -f "${to}" ]] && mv "${to}" "${to}.original"
-
-		# Otherwise, if not already a link -> create
-		[[ ! -L "${to}" ]] && ln -s "/www/${f}" "${to}"
+		# Backup original
+		[[ ! -f "${to}.original" ]] && cp "${to}" "${to}.original"
+		
+		# Append custom lang entries
+		cat "${f}" >> "${to}"
 	done
 
 	return 0
