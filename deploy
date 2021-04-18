@@ -46,6 +46,7 @@ function main() {
 	# Fetch/update webmail
 	get_rc "${dest}" "${1}"
 	get_skin "${dest}"
+	get_lang "${dest}"
 
 	# Fetch/update plugins
 	get_plugin "${dest}" RC-Plugin-wblist
@@ -72,23 +73,15 @@ function main() {
 #		0 upon success
 #######################################
 function get_rc() {
-	if [ "${#}" -ne 2 ]; then
+	if [ "${#}" -ne 1 ]; then
 		err "Error: missing arguments"
-		err "Usage: get_rc dest repo"
+		err "Usage: get_rc dest"
 		return 1
 	fi
 
 	local readonly dest="${1}"
-	local readonly repo="${2}"
 
 	echo "Updating Roundcube:"
-
-	# Check if deloy key is found
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${repo}"
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
 
 	local readonly latest=$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
 	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
@@ -113,7 +106,7 @@ function get_rc() {
 }
 
 #######################################
-#	Fetch/Update skin and language files
+#	Fetch/Update skin
 #	Link from rc_root
 #
 #	Arguments:
@@ -130,7 +123,7 @@ function get_skin() {
 	fi
 
 	local readonly dest="${1}"
-	echo -e "\nUpdating skin and lang:"
+	echo -e "\nUpdating skins:"
 
 	# Check if passed dest exists
 	if [[ ! -d "${dest}" ]]; then
@@ -139,32 +132,90 @@ function get_skin() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_skin_${dest}"
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_skin"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
 	fi
 
 	# Update if the plugin exists, clone otherwise
-	mkdir -p skins/
-	if [[ -d "skins/${dest}" ]]; then
+	mkdir -p repos/
+	if [[ -d repos/RC-Skin/ ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git -C "skins/${dest}" pull
+			git -C repos/RC-Skin/ pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/RC-Skin-${dest}.git" "skins/${dest}"
+			git clone git@github.com:Fjordmail/RC-Skin.git repos/RC-Skin/
 	fi
 
-	# Link changed files from rc_root to skins/$dest
-	for f in `find "skins/${dest}/" -type f -not -path "skins/${dest}/.git*"`; do
-		# $f = skins/app.sol.dk/file
-		# $to = app.sol.dk/file
-		local to=$(echo "${f}" | cut -d'/' -f2-)
+	# Put skin in rc_root/skins/
+	for f in `command ls -d repos/RC-Skin/skins/*`;
+		# $f = repos/RC-Skin/skins/sol
+		# $skin = sol
+
+		# Skin name
+		local skin=$(echo "${f}" | rev | cut -d'/' -f1 | rev)
+		
+		# Create link if it doesn't exist in $dest/skins
+		[[ ! -d "${dest}/skins/${skin}" ]] && ln -s "../../${f}" "${dest}/skins/${skin}"
+	done
+
+	return 0
+}
+
+#######################################
+#	Fetch/Update lang
+#	Link from rc_root
+#
+#	Arguments:
+#		dest (string): rc_root name
+#	Returns:
+#		1 upon error
+#		0 upon success
+#######################################
+function get_lang() {
+	if [ "${#}" -ne 1 ]; then
+		err "Error: no argument provided"
+		err "Usage: get_skin dest"
+		return 1
+	fi
+
+	local readonly dest="${1}"
+	echo -e "\nUpdating langs:"
+
+	# Check if passed dest exists
+	if [[ ! -d "${dest}" ]]; then
+		err "Error: destination folder does not exist"
+		return 1
+	fi
+
+	# Check if deploy key is found
+	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_lang"
+	if [[ ! -f "${deploy_key}" ]]; then
+		err "Error: deploy key for was not found: ${deploy_key}"
+		return 1
+	fi
+
+	# Update if the plugin exists, clone otherwise
+	mkdir -p repos/
+	if [[ -d repos/RC-Lang/ ]]; then
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git -C repos/RC-Lang/ pull
+	else
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
+			git clone git@github.com:Fjordmail/RC-Lang.git repos/RC-Lang/
+	fi
+
+	# Link changed files from rc_root
+	for f in `find repos/RC-Lang/ -type f -not -path repos/RC-Lang/.git*`; do
+		# $f = repos/RC-Lang/dir/file
+		# $to = dir/file
+		local to="${dest}/$(echo ${f} | cut -d'/' -f3-)"
 
 		# If $to is not a link but an existing file (= original from RC) -> back up
 		[[ ! -L "${to}" ]] && [[ -f "${to}" ]] && mv "${to}" "${to}.original"
 
-		# Otherwise, if $to is already a link -> skip. If not, create link
+		# Otherwise, if not already a link -> create
 		[[ ! -L "${to}" ]] && ln -s "/www/${f}" "${to}"
 	done
 
@@ -208,17 +259,17 @@ function get_plugin() {
 	fi
 
 	# Update if the plugin exists, clone otherwise
-	mkdir -p plugins/
-	if [[ -d "plugins/${repo}" ]]; then
+	mkdir -p repos/
+	if [[ -d "repos/${repo}" ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git -C "plugins/${repo}" pull
+			git -C "repos/${repo}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/${repo}.git" "plugins/${repo}"
+			git clone "git@github.com:Fjordmail/${repo}.git" "repos/${repo}"
 	fi
 
 	# Install plugin to rc_root with a link
-	[[ ! -L "${dest}/plugins/${plugin_name}" ]] && ln -s "../../plugins/${repo}" "${dest}/plugins/${plugin_name}"
+	[[ ! -L "${dest}/plugins/${plugin_name}" ]] && ln -s "../../repos/${repo}" "${dest}/plugins/${plugin_name}"
 
 	return 0
 }
@@ -261,23 +312,23 @@ function get_raim() {
 	fi
 
 	# Check if raim is out of date or not existant
-	if should_be_updated "plugins/raim-${dest}"; then
+	if should_be_updated "repos/raim-${dest}"; then
 		# Delete existing
-		rm -rf "plugins/raim-${dest}"
+		rm -rf "repos/raim-${dest}"
 		rm -rf "${dest}/instance/password-reset"
 		rm -rf "${dest}/instance/registration"
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone git@github.com:Fjordmail/RAIM.git "plugins/raim-${dest}"
+			git clone git@github.com:Fjordmail/RAIM.git "repos/raim-${dest}"
 
 		# Fetch raim config
-		ln -s "../../../../../config/${dest}/raim_shared_config.js" "plugins/raim-${dest}/packages/shared/src/config.js"
-		ln -s "../../../../config/${dest}/raim_registration.env" "plugins/raim-${dest}/packages/registration/.env"
-		ln -s "../../../../config/${dest}/raim_password-reset.env" "plugins/raim-${dest}/packages/password-reset/.env"
+		ln -s "../../../../../config/${dest}/raim_shared_config.js" "repos/raim-${dest}/packages/shared/src/config.js"
+		ln -s "../../../../config/${dest}/raim_registration.env" "repos/raim-${dest}/packages/registration/.env"
+		ln -s "../../../../config/${dest}/raim_password-reset.env" "repos/raim-${dest}/packages/password-reset/.env"
 
 		# Build
-		cd "plugins/raim-${dest}"
+		cd "repos/raim-${dest}"
 		yarn install
 		yarn build
 		cd ../../
@@ -287,8 +338,8 @@ function get_raim() {
 
 	# Install plugin to rc_root with links
 	mkdir -p "${dest}/instance/"
-	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "../../plugins/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
-	[[ ! -L "${dest}/instance/registration" ]] && ln -s "../../plugins/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
+	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "../../repos/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
+	[[ ! -L "${dest}/instance/registration" ]] && ln -s "../../repos/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
 
 	return 0
 }
@@ -327,24 +378,24 @@ function get_recurrent() {
 	fi
 
 	# Remove links, so the local repo can be updated
-	[[ -L "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && rm "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
-	[[ -L "plugins/RC-Plugin-recurrent-${dest}/vendor/spa" ]] && rm "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
+	[[ -L "repos/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && rm "repos/RC-Plugin-recurrent-${dest}/vendor/Config.php"
+	[[ -L "repos/RC-Plugin-recurrent-${dest}/vendor/spa" ]] && rm "repos/RC-Plugin-recurrent-${dest}/vendor/spa"
 
 	# Fetch latest
-	if [[ -d "plugins/RC-Plugin-recurrent-${dest}" ]]; then
+	if [[ -d "repos/RC-Plugin-recurrent-${dest}" ]]; then
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git -C "plugins/RC-Plugin-recurrent-${dest}" pull
+			git -C "repos/RC-Plugin-recurrent-${dest}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/RC-Plugin-recurrent.git" "plugins/RC-Plugin-recurrent-${dest}"
+			git clone git@github.com:Fjordmail/RC-Plugin-recurrent.git "repos/RC-Plugin-recurrent-${dest}"
 	fi
 
 	# Recreate the links
-	ln -s "../../../config/${dest}/recurrent-Config.php" "plugins/RC-Plugin-recurrent-${dest}/vendor/Config.php"
-	ln -s "../../raim-${dest}/packages/account/build" "plugins/RC-Plugin-recurrent-${dest}/vendor/spa"
+	ln -s "../../../config/${dest}/recurrent-Config.php" "repos/RC-Plugin-recurrent-${dest}/vendor/Config.php"
+	ln -s "../../raim-${dest}/packages/account/build" "repos/RC-Plugin-recurrent-${dest}/vendor/spa"
 
 	# Install plugin to rc_root/plugins
-	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../plugins/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
+	[[ ! -L "${dest}/plugins/recurrent" ]] && ln -s "../../repos/RC-Plugin-recurrent-${dest}" "${dest}/plugins/recurrent"
 
 	return 0
 }
