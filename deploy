@@ -207,7 +207,7 @@ function get_lang() {
 	fi
 
 	# Link changed files from rc_root
-	for f in `find repos/RC-Lang/ -type f -not -path repos/RC-Lang/.git*`; do
+	for f in `find repos/RC-Lang/ -type f -not -path "repos/RC-Lang/.git*"`; do
 		# $f = repos/RC-Lang/dir/file
 		# $to = dir/file
 		local to="${dest}/$(echo ${f} | cut -d'/' -f3-)"
