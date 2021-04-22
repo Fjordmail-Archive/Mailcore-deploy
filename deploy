@@ -211,6 +211,8 @@ function get_lang() {
 			git clone git@github.com:Fjordmail/RC-Lang.git repos/RC-Lang/
 	fi
 
+	local readonly product_name=$(cat "config/${dest}/custom.inc.php" | grep "'product_name'" | cut -d"'" -f4)
+
 	# Link changed files from rc_root
 	for f in `find repos/RC-Lang/ -type f -not -path "repos/RC-Lang/.git*"`; do
 		# $f = repos/RC-Lang/dir/file
@@ -226,6 +228,9 @@ function get_lang() {
 		
 		# Append custom lang entries
 		cat "${f}" >> "${to}"
+
+		# Update product_name
+		sed -i "s/product_name/${product_name}/g" "${to}"
 	done
 
 	return 0
