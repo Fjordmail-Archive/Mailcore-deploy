@@ -95,10 +95,14 @@ function get_rc() {
 		chmod -R ug+rw "${dest}/temp" "${dest}/logs"
 		rm -rf "${dest}/installer"
 
-		# Fetch config
+		# Fetch RC config
 		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
 		ln -s "../config/${dest}/" "${dest}/config"
+
+		# Fetch managesieve config
+		local readonly skin = $(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
 		ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
+		ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 	else
 		echo "Already up to date."
 	fi
