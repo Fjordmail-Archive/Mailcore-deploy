@@ -334,7 +334,7 @@ function get_raim() {
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone git@github.com:Fjordmail/RAIM.git "repos/raim-${dest}"
+			git clone -b master git@github.com:Fjordmail/RAIM.git "repos/raim-${dest}"
 
 		# Fetch raim config
 		ln -s "../../../../../config/${dest}/raim_shared_config.js" "repos/raim-${dest}/packages/shared/src/config.js"
