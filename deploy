@@ -98,6 +98,7 @@ function get_rc() {
 		# Fetch config
 		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
 		ln -s "../config/${dest}/" "${dest}/config"
+		ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
 	else
 		echo "Already up to date."
 	fi

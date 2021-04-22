@@ -71,6 +71,8 @@ Omitting most common files:
 │   │   ├── password-reset -> ../../plugins/raim-app.sol.dk/packages/password-reset/build/
 │   │   └── registration -> ../../plugins/raim-app.sol.dk/packages/registration/build/
 │   ├── plugins/ # Only showing custom plugins
+│   │   ├── managesieve/
+│   │   │   └── config.inc.php -> ../../config/managesieve.conf
 │   │   ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk/
 │   │   ├── spamlevel/ -> ../../plugins/RC-Plugin-spamlevel/
 │   │   └── wblist -> ../../plugins/RC-Plugin-wblist/
