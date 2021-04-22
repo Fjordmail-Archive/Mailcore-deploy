@@ -73,7 +73,8 @@ Omitting most common files:
 │   ├── plugins/ # Only showing custom plugins
 │   │   ├── managesieve/
 │   │   │   ├── config.inc.php -> ../../config/managesieve.conf
-│   │   │   └── skins/sol -> elastic/
+│   │   │   └── skins/
+│   │   │       └── sol -> elastic/
 │   │   ├── recurrent -> ../../plugins/RC-Plugin-Recurrent-app.sol.dk/
 │   │   ├── spamlevel/ -> ../../plugins/RC-Plugin-spamlevel/
 │   │   └── wblist -> ../../plugins/RC-Plugin-wblist/
