@@ -12,11 +12,11 @@ set -e
 #		0 upon success
 #######################################
 function main() {
-	local readonly USAGE="Usage: ./deploy repo"
+	local readonly USAGE="Usage: ./deploy repo destination"
 	declare -a repos=("Sol.dk-RC" "Wemail-RC")
 
-	if [ "${#}" -ne 1 ]; then
-		err "Error: no argument provided"
+	if [ "${#}" -ne 2 ]; then
+		err "Error: two arguments are required"
 		err "${USAGE}"
 		err "Available repo:"
 		printf '\t%s\n' "${repos[@]}"
@@ -30,16 +30,7 @@ function main() {
 		return 1
 	fi
 
-	# Set correct destination folder, depending on $1
-	if [ "${1}" == "Sol.dk-RC" ]; then
-		local readonly dest="app.sol.dk"
-	elif [ "${1}" == "Wemail-RC" ]; then
-		local readonly dest="app.wemail.no"
-	else
-		err "Error: invalid argument provided"
-		err "This should not appear"
-		return 1
-	fi
+	local readonly dest="${2}"
 
 	echo -e "UPDATING WEBMAIL: ${dest}\n"
 
@@ -137,7 +128,7 @@ function get_skin() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_skin"
+	local readonly deploy_key="deploy_keys/mailcore_deploy_skin"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -195,7 +186,7 @@ function get_lang() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_lang"
+	local readonly deploy_key="deploy_keys/mailcore_deploy_lang"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -266,7 +257,7 @@ function get_plugin() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_${plugin_name}"
+	local readonly deploy_key="deploy_keys/mailcore_deploy_${plugin_name}"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -302,7 +293,7 @@ function get_plugin() {
 #		0 upon success
 #######################################
 function get_raim() {
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_raim"
+	local readonly deploy_key="deploy_keys/mailcore_deploy_raim"
 
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
@@ -384,7 +375,7 @@ function get_recurrent() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="/www/deploy_keys/mailcore_deploy_recurrent"
+	local readonly deploy_key="deploy_keys/mailcore_deploy_recurrent"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
