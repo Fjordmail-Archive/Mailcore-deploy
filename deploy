@@ -329,8 +329,8 @@ function get_raim() {
 	if should_be_updated "repos/raim-${dest}"; then
 		# Delete existing
 		rm -rf "repos/raim-${dest}"
-		rm -rf "${dest}/instance/password-reset"
-		rm -rf "${dest}/instance/registration"
+		rm -rf "${dest}/password-reset"
+		rm -rf "${dest}/registration"
 
 		# Fetch latest
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
@@ -351,9 +351,8 @@ function get_raim() {
 	fi
 
 	# Install plugin to rc_root with links
-	mkdir -p "${dest}/instance/"
-	[[ ! -L "${dest}/instance/password-reset" ]] && ln -s "../../repos/raim-${dest}/packages/password-reset/build" "${dest}/instance/password-reset"
-	[[ ! -L "${dest}/instance/registration" ]] && ln -s "../../repos/raim-${dest}/packages/registration/build" "${dest}/instance/registration"
+	[[ ! -L "${dest}/password-reset" ]] && ln -s "../repos/raim-${dest}/packages/password-reset/build" "${dest}/password-reset"
+	[[ ! -L "${dest}/registration" ]] && ln -s "../repos/raim-${dest}/packages/registration/build" "${dest}/registration"
 
 	return 0
 }
