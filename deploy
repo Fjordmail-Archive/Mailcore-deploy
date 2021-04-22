@@ -218,7 +218,11 @@ function get_lang() {
 		local to="${dest}/$(echo ${f} | cut -d'/' -f3-)"
 
 		# Backup original
-		[[ ! -f "${to}.original" ]] && cp "${to}" "${to}.original"
+		[[ ! -f "${to}.original" ]] && mv "${to}" "${to}.original"
+
+		# Remove previous and copy original
+		[[ -f "${to}" ]] && rm "${to}"
+		cp "${to}.original" "${to}"
 		
 		# Append custom lang entries
 		cat "${f}" >> "${to}"
