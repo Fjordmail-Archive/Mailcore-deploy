@@ -100,7 +100,7 @@ function get_rc() {
 		ln -s "../config/${dest}/" "${dest}/config"
 
 		# Fetch managesieve config
-		local readonly skin = $(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
+		local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
 		ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
 		ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 	else
