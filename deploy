@@ -44,6 +44,7 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
 	get_recurrent "${dest}"
+	get_plugin "${dest}" RC-Plugin-managesieve 1.4.11-compliant
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ repos/
@@ -238,15 +239,17 @@ function get_lang() {
 #		0 upon success
 #######################################
 function get_plugin() {
-	if [ "${#}" -ne 2 ]; then
-		err "Error: no argument provided"
-		err "Usage: get_plugin dest repo"
+	if [[ "${#}" -lt 2 ]] || [[ "${#}" -gt 3 ]]; then
+		err "Error: invalid number of arguments"
+		err "Usage: get_plugin dest repo [branch]"
 		return 1
 	fi
 
 	local readonly dest="${1}"
 	local readonly repo="${2}" # RC-Plugin-xxx
 	local readonly plugin_name=$(echo "${repo}" | cut -d'-' -f3) # xxx
+	local readonly branch=""
+	[[ "${#}" -eq 3 ]] && branch="-b ${3}"
 	
 	echo -e "\nUpdating ${2}:"
 
@@ -270,11 +273,12 @@ function get_plugin() {
 			git -C "repos/${repo}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone "git@github.com:Fjordmail/${repo}.git" "repos/${repo}"
+			git clone "${branch}" "git@github.com:Fjordmail/${repo}.git" "repos/${repo}"
 	fi
 
 	# Install plugin to rc_root with a link
-	[[ ! -L "${dest}/plugins/${plugin_name}" ]] && ln -s "../../repos/${repo}" "${dest}/plugins/${plugin_name}"
+	[[ -f "${dest}/plugins/${plugin_name}" ]] && rm "${dest}/plugins/${plugin_name}"
+	ln -s "../../repos/${repo}" "${dest}/plugins/${plugin_name}"
 
 	return 0
 }
