@@ -129,7 +129,7 @@ function get_skin() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="deploy_keys/mailcore_deploy_skin"
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_skin"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -138,10 +138,10 @@ function get_skin() {
 	# Update if the plugin exists, clone otherwise
 	mkdir -p repos/
 	if [[ -d repos/RC-Skin/ ]]; then
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git -C repos/RC-Skin/ pull
 	else
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RC-Skin.git repos/RC-Skin/
 	fi
 
@@ -187,7 +187,7 @@ function get_lang() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="deploy_keys/mailcore_deploy_lang"
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_lang"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -196,10 +196,10 @@ function get_lang() {
 	# Update if the plugin exists, clone otherwise
 	mkdir -p repos/
 	if [[ -d repos/RC-Lang/ ]]; then
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git -C repos/RC-Lang/ pull
 	else
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RC-Lang.git repos/RC-Lang/
 	fi
 
@@ -260,7 +260,7 @@ function get_plugin() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="deploy_keys/mailcore_deploy_${plugin_name}"
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_${plugin_name}"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -269,10 +269,10 @@ function get_plugin() {
 	# Update if the plugin exists, clone otherwise
 	mkdir -p repos/
 	if [[ -d "repos/${repo}" ]]; then
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git -C "repos/${repo}" pull
 	else
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone "${branch}" "git@github.com:Fjordmail/${repo}.git" "repos/${repo}"
 	fi
 
@@ -297,7 +297,7 @@ function get_plugin() {
 #		0 upon success
 #######################################
 function get_raim() {
-	local readonly deploy_key="deploy_keys/mailcore_deploy_raim"
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_raim"
 
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
@@ -328,7 +328,7 @@ function get_raim() {
 		rm -rf "${dest}/registration"
 
 		# Fetch latest
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone -b master git@github.com:Fjordmail/RAIM.git "repos/raim-${dest}"
 
 		# Fetch raim config
@@ -379,7 +379,7 @@ function get_recurrent() {
 	fi
 
 	# Check if deploy key is found
-	local readonly deploy_key="deploy_keys/mailcore_deploy_recurrent"
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_recurrent"
 	if [[ ! -f "${deploy_key}" ]]; then
 		err "Error: deploy key for was not found: ${deploy_key}"
 		return 1
@@ -391,10 +391,10 @@ function get_recurrent() {
 
 	# Fetch latest
 	if [[ -d "repos/RC-Plugin-recurrent-${dest}" ]]; then
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git -C "repos/RC-Plugin-recurrent-${dest}" pull
 	else
-		GIT_SSH_COMMAND="ssh -i '$(pwd)/${deploy_key}' -o IdentitiesOnly=yes" \
+		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RC-Plugin-recurrent.git "repos/RC-Plugin-recurrent-${dest}"
 	fi
 
