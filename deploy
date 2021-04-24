@@ -248,8 +248,8 @@ function get_plugin() {
 	local readonly dest="${1}"
 	local readonly repo="${2}" # RC-Plugin-xxx
 	local readonly plugin_name=$(echo "${repo}" | cut -d'-' -f3) # xxx
-	local readonly branch=""
-	[[ "${#}" -eq 3 ]] && branch="-b ${3}"
+	local readonly branch="master"
+	[[ "${#}" -eq 3 ]] && branch="${3}"
 	
 	echo -e "\nUpdating ${2}:"
 
@@ -273,7 +273,7 @@ function get_plugin() {
 			git -C "repos/${repo}" pull
 	else
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
-			git clone "${branch}" "git@github.com:Fjordmail/${repo}.git" "repos/${repo}"
+			git clone -b "${branch}" "git@github.com:Fjordmail/${repo}.git" "repos/${repo}"
 	fi
 
 	# Install plugin to rc_root with a link
