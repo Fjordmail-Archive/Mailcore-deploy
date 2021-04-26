@@ -97,9 +97,7 @@ function get_rc() {
 		ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 
 		# Apply Jesper's patch
-		cd "${dest}/plugins/managesieve"
-		echo "${MANAGESIEVE_PATCH}" | patch -b
-		cd ../../../
+		echo "${MANAGESIEVE_PATCH}" | patch -b "${dest}/plugins/managesieve/lib/Roundcube/rcube_sieve_engine.php"
 	else
 		echo "Already up to date."
 	fi
@@ -445,13 +443,20 @@ function err() {
 }
 
 # Jesper's managiesieve patch to disable the redirect action as an ext
-readonly MANAGESIEVE_PATCH="2105,2106c2105,2107
-<         $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
-<         if (in_array('copy', $this->exts))
----
->         if (in_array('redirect', $this->exts))
->             $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
->         if (in_array('redirect', $this->exts) && in_array('copy', $this->exts))
+readonly MANAGESIEVE_PATCH="--- a.php       2021-04-26 19:41:32.212524192 +0200
++++ b.php       2021-04-26 19:39:48.173017495 +0200
+@@ -2102,8 +2102,9 @@
+             $select_action->add($this->plugin->gettext('messagemoveto'), 'fileinto');
+         if (in_array('fileinto', $this->exts) && in_array('copy', $this->exts))
+             $select_action->add($this->plugin->gettext('messagecopyto'), 'fileinto_copy');
+-        $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
+-        if (in_array('copy', $this->exts))
++        if (in_array('redirect', $this->exts))
++            $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
++        if (in_array('redirect', $this->exts) && in_array('copy', $this->exts))
+             $select_action->add($this->plugin->gettext('messagesendcopy'), 'redirect_copy');
+         if (in_array('reject', $this->exts))
+             $select_action->add($this->plugin->gettext('messagediscard'), 'reject');
 "
 
 main "${@}"; exit
