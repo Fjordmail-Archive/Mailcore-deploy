@@ -1,0 +1,15 @@
+--- app.sol.dk/plugins/managesieve/lib/Roundcube/rcube_sieve_engine.php	2021-02-08 20:29:40.000000000 +0100
++++ app.sol.dk/plugins/managesieve/lib/Roundcube/rcube_sieve_engine.new.php	2021-04-26 21:44:01.906015211 +0200
+@@ -2102,8 +2102,9 @@
+             $select_action->add($this->plugin->gettext('messagemoveto'), 'fileinto');
+         if (in_array('fileinto', $this->exts) && in_array('copy', $this->exts))
+             $select_action->add($this->plugin->gettext('messagecopyto'), 'fileinto_copy');
+-        $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
+-        if (in_array('copy', $this->exts))
++        if (in_array('redirect', $this->exts))
++            $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
++        if (in_array('redirect', $this->exts) && in_array('copy', $this->exts))
+             $select_action->add($this->plugin->gettext('messagesendcopy'), 'redirect_copy');
+         if (in_array('reject', $this->exts))
+             $select_action->add($this->plugin->gettext('messagediscard'), 'reject');
+
