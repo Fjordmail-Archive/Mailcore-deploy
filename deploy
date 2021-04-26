@@ -445,32 +445,13 @@ function err() {
 }
 
 # Jesper's managiesieve patch to disable the redirect action as an ext
-readonly MANAGESIEVE_PATCH="From 371f1db15cf8e379940e99fbd272417a292ad5b2 Mon Sep 17 00:00:00 2001
-From: Sebastian Karlsen <sebastian@karlsen.fr>
-Date: Fri, 23 Apr 2021 15:37:11 +0200
-Subject: [PATCH] Patch from Jesper: add possibility to disable e-mail
- forwarding
-
+readonly MANAGESIEVE_PATCH="2105,2106c2105,2107
+<         $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
+<         if (in_array('copy', $this->exts))
 ---
- lib/Roundcube/rcube_sieve_engine.php | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/lib/Roundcube/rcube_sieve_engine.php b/lib/Roundcube/rcube_sieve_engine.php
-index 6236f96..c8d6f66 100644
---- a/lib/Roundcube/rcube_sieve_engine.php
-+++ b/lib/Roundcube/rcube_sieve_engine.php
-@@ -2102,8 +2102,9 @@ function action_div($fid, $id, $div=true)
-             $select_action->add($this->plugin->gettext('messagemoveto'), 'fileinto');
-         if (in_array('fileinto', $this->exts) && in_array('copy', $this->exts))
-             $select_action->add($this->plugin->gettext('messagecopyto'), 'fileinto_copy');
--        $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
--        if (in_array('copy', $this->exts))
-+        if (in_array('redirect', $this->exts))
-+            $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
-+        if (in_array('redirect', $this->exts) && in_array('copy', $this->exts))
-             $select_action->add($this->plugin->gettext('messagesendcopy'), 'redirect_copy');
-         if (in_array('reject', $this->exts))
-             $select_action->add($this->plugin->gettext('messagediscard'), 'reject');
+>         if (in_array('redirect', $this->exts))
+>             $select_action->add($this->plugin->gettext('messageredirect'), 'redirect');
+>         if (in_array('redirect', $this->exts) && in_array('copy', $this->exts))
 "
 
 main "${@}"; exit
