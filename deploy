@@ -44,7 +44,7 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-spamlevel
 	get_raim "${dest}"
 	get_recurrent "${dest}"
-	get_plugin "${dest}" RC-Plugin-managesieve 1.4.11-compliant
+	#get_plugin "${dest}" RC-Plugin-managesieve 1.4.11-compliant
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ repos/
@@ -278,7 +278,8 @@ function get_plugin() {
 
 	# Install plugin to rc_root with a link
 	[[ -f "${dest}/plugins/${plugin_name}" ]] && rm "${dest}/plugins/${plugin_name}"
-	[[ ! -L "${dest}/plugins/${plugin_name}" ]] && ln -s "../../repos/${repo}" "${dest}/plugins/${plugin_name}"
+	[[ -L "${dest}/plugins/${plugin_name}" ]] && rm "${dest}/plugins/${plugin_name}"
+	ln -s "../../repos/${repo}" "${dest}/plugins/${plugin_name}"
 
 	return 0
 }
