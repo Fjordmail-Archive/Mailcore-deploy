@@ -42,6 +42,7 @@ function main() {
 	# Fetch/update plugins
 	get_plugin "${dest}" RC-Plugin-wblist
 	get_plugin "${dest}" RC-Plugin-spamlevel
+	get_plugin "${dest}" RC-Plugin-mailcore_loglogin
 	get_raim "${dest}"
 	get_recurrent "${dest}"
 	#get_plugin "${dest}" RC-Plugin-managesieve 1.4.11-compliant
