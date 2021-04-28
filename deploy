@@ -48,8 +48,8 @@ function main() {
 	#get_plugin "${dest}" RC-Plugin-managesieve 1.4.11-compliant
 
 	# Fix permissions
-	sudo chown -R www-data:www-data "${dest}" config/ repos/
-	sudo chmod -R ug+rwx "${dest}" config/ repos/
+	#sudo chown -R www-data:www-data "${dest}" config/ repos/
+	#sudo chmod -R ug+rwx "${dest}" config/ repos/
 
 	return 0
 }
@@ -156,7 +156,7 @@ function get_skin() {
 
 		# Skin name
 		local skin=$(echo "${f}" | rev | cut -d'/' -f1 | rev)
-		
+
 		# Create link if it doesn't exist in $dest/skins
 		[[ ! -d "${dest}/skins/${skin}" ]] && ln -s "../../${f}" "${dest}/skins/${skin}"
 	done
@@ -221,7 +221,7 @@ function get_lang() {
 		# Remove previous and copy original
 		[[ -f "${to}" ]] && rm "${to}"
 		cp "${to}.original" "${to}"
-		
+
 		# Append custom lang entries
 		cat "${f}" >> "${to}"
 
@@ -254,7 +254,7 @@ function get_plugin() {
 	local readonly plugin_name=$(echo "${repo}" | cut -d'-' -f3) # xxx
 	local readonly branch="master"
 	[[ "${#}" -eq 3 ]] && branch="${3}"
-	
+
 	echo -e "\nUpdating ${2}:"
 
 	# Check if passed dest exists
