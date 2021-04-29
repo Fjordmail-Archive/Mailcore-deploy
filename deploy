@@ -47,9 +47,14 @@ function main() {
 	get_recurrent "${dest}"
 	get_plugin "${dest}" RC-Plugin-managesieve
 
+	# Fix custom managesieve
 	local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
-	ln -s "../../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
-	ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
+	[[ -d "repos/RC-Plugin-managesieve-${dest}" ]] && rm "repos/RC-Plugin-managesieve-${dest}"
+	ln -s "elastic" "repos/RC-Plugin-managesieve/skins/${skin}"
+	ln -s "../../../config/${dest}/managesieve.conf" repos/RC-Plugin-managesieve/config.inc.php
+	mv "repos/RC-Plugin-managesieve" "repos/RC-Plugin-managesieve-${dest}"
+	rm "${dest}/plugins/managesieve"
+	ln -s "../../repos/RC-Plugin-managesieve-${dest}" "${dest}/plugins/managesieve"
 
 	# Fix permissions
 	#sudo chown -R www-data:www-data "${dest}" config/ repos/
