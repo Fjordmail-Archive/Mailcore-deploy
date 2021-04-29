@@ -57,7 +57,7 @@ function main() {
 	ln -s "../../repos/RC-Plugin-managesieve-${dest}" "${dest}/plugins/managesieve"
 
 	# mailcore_loglogin config
-	[[ ! -f "${dest}/plugins/mailcore_loglogin/config.inc.php" ]] && ln -s ../../config/mailcore_loglogin.php "${dest}/plugins/mailcore_loglogin/config.inc.php"
+	[[ ! -L "${dest}/plugins/mailcore_loglogin/config.inc.php" ]] && ln -s ../../config/mailcore_loglogin.php "${dest}/plugins/mailcore_loglogin/config.inc.php"
 
 	# Fix permissions
 	#sudo chown -R www-data:www-data "${dest}" config/ repos/
