@@ -48,7 +48,7 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-managesieve
 
 	local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
-	ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
+	ln -s "../../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
 	ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 
 	# Fix permissions
