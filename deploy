@@ -45,7 +45,12 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-mailcore_loglogin
 	get_raim "${dest}"
 	get_recurrent "${dest}"
-	#get_plugin "${dest}" RC-Plugin-managesieve 1.4.11-compliant
+	get_plugin "${dest}" RC-Plugin-managesieve
+
+	local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
+	rm "${dest}/plugins/managesieve/config.inc.php" "${dest}/plugins/managesieve/skins/${skin}"
+	ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
+	ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 
 	# Fix permissions
 	#sudo chown -R www-data:www-data "${dest}" config/ repos/
@@ -93,12 +98,12 @@ function get_rc() {
 		ln -s "../config/${dest}/" "${dest}/config"
 
 		# Fetch managesieve config
-		local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
-		ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
-		ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
+		#local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
+		#ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
+		#ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 
 		# Apply Jesper's patch
-		echo "${MANAGESIEVE_PATCH}" | sed -e "s/app.sol.dk/${dest}/g" | patch -p 0
+		#echo "${MANAGESIEVE_PATCH}" | sed -e "s/app.sol.dk/${dest}/g" | patch -p 0
 	else
 		echo "Already up to date."
 	fi
