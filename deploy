@@ -49,7 +49,7 @@ function main() {
 
 	# Fix custom managesieve
 	local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
-	[[ -d "repos/RC-Plugin-managesieve-${dest}" ]] && rm "repos/RC-Plugin-managesieve-${dest}"
+	[[ -d "repos/RC-Plugin-managesieve-${dest}" ]] && rm -rf "repos/RC-Plugin-managesieve-${dest}"
 	ln -s "elastic" "repos/RC-Plugin-managesieve/skins/${skin}"
 	ln -s "../../config/${dest}/managesieve.conf" repos/RC-Plugin-managesieve/config.inc.php
 	mv "repos/RC-Plugin-managesieve" "repos/RC-Plugin-managesieve-${dest}"
