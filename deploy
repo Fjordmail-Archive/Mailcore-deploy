@@ -109,7 +109,7 @@ function get_rc() {
 		git clone https://github.com/sblaisot/automatic_addressbook.git "${dest}/plugins/automatic_addressbook"
 		git clone -b release-0.3 https://github.com/johndoh/roundcube-swipe.git "${dest}/plugins/swipe"
 		#cp -a ".bak/${dest}/plugins/swipe" "${dest}/plugins/roundcube-swipe"
-		ln -s "elastic" "${dest}/plugins/roundcube-swipe/skins/${skin}"
+		ln -s "elastic" "${dest}/plugins/swipe/skins/${skin}"
 
 		# Fetch managesieve config
 		#ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
