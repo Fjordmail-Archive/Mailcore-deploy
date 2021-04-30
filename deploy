@@ -108,7 +108,7 @@ function get_rc() {
 		# Fetch third-party plugin
 		git clone https://github.com/sblaisot/automatic_addressbook.git "${dest}/plugins/automatic_addressbook"
 		git clone https://github.com/johndoh/roundcube-swipe.git "${dest}/plugins/roundcube-swipe"
-		ln -s "elastic" "${dest}/plugins/roundcube/skins/${skin}"
+		ln -s "elastic" "${dest}/plugins/roundcube-swipe/skins/${skin}"
 
 		# Fetch managesieve config
 		#ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
