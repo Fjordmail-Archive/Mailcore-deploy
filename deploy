@@ -94,6 +94,7 @@ function get_rc() {
 	# Update Roundcube if current is either outdated or nonexistant
 	if [[ -z "${current}" ]] || [[ "${latest}" != "${current}" ]]; then
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
+		local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
 
 		wget -c "https://github.com/roundcube/roundcubemail/releases/download/${latest}/roundcubemail-${latest}-complete.tar.gz" -O - | tar -xz
 		mv "roundcubemail-${latest}" "${dest}"
@@ -104,8 +105,12 @@ function get_rc() {
 		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
 		ln -s "../config/${dest}/" "${dest}/config"
 
+		# Fetch third-party plugin
+		git clone https://github.com/sblaisot/automatic_addressbook.git "${dest}/plugins/automatic_addressbook"
+		git clone https://github.com/johndoh/roundcube-swipe.git "${dest}/plugins/roundcube-swipe"
+		ln -s "elastic" "${dest}/plugins/roundcube/skins/${skin}"
+
 		# Fetch managesieve config
-		#local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
 		#ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
 		#ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 
