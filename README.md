@@ -3,12 +3,11 @@
 ## Description
 
 1. Fetch/update [RoundCube](https://github.com/roundcube/roundcubemail/releases/tag/1.4.11) to latest from upstream;
-2. Patch `managesieve` to allow disabling redirections;
-3. Fetch/update custom skin ([RC-Skin](https://github.com/Fjordmail/RC-Skin)) and back up original RC files;
-4. Fetch/update custom lang ([RC-Lang](https://github.com/Fjordmail/RC-Lang)) and back up original RC files;
-5. Fetch/update plugins: [RC-Plugin-wblist](https://github.com/Fjordmail/RC-Plugin-wblist), [RC-Plugin-spamlevel](https://github.com/Fjordmail/RC-Plugin-spamlevel), [RC-Plugin-mailcore_loglgin](https://github.com/Fjordmail/RC-Plugin-mailcore_loglogin);
-6. Fetch/update [RAIM](https://github.com/Fjordmail/RAIM);
-7. Fetch/update [RC-Plugin-recurrent](https://github.com/Fjordmail/RC-Plugin-recurrent).
+2. Fetch/update custom skin ([RC-Skin](https://github.com/Fjordmail/RC-Skin)) and back up original RC files;
+3. Fetch/update custom lang ([RC-Lang](https://github.com/Fjordmail/RC-Lang)) and back up original RC files;
+4. Fetch/update plugins: [RC-Plugin-wblist](https://github.com/Fjordmail/RC-Plugin-wblist), [RC-Plugin-spamlevel](https://github.com/Fjordmail/RC-Plugin-spamlevel), [RC-Plugin-mailcore_loglgin](https://github.com/Fjordmail/RC-Plugin-mailcore_loglogin), [RC-Plugin-managesieve](https://github.com/Fjordmail/RC-Plugin-managesieve];
+5. Fetch/update [RAIM](https://github.com/Fjordmail/RAIM);
+6. Fetch/update [RC-Plugin-recurrent](https://github.com/Fjordmail/RC-Plugin-recurrent).
 
 
 ## Usage
