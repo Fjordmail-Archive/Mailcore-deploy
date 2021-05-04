@@ -31,11 +31,12 @@ function main() {
 	fi
 
 	local readonly dest="${2}"
+	local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
 
 	echo -e "UPDATING WEBMAIL: ${dest}\n"
 
 	# Fetch/update webmail
-	get_rc "${dest}"
+	get_rc "${dest}" "${skin}"
 	get_skin "${dest}"
 	get_lang "${dest}"
 
@@ -48,7 +49,6 @@ function main() {
 	get_plugin "${dest}" RC-Plugin-managesieve
 
 	# Fix custom managesieve
-	local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
 	[[ -d "repos/RC-Plugin-managesieve-${dest}" ]] && rm -rf "repos/RC-Plugin-managesieve-${dest}"
 	ln -s "elastic" "repos/RC-Plugin-managesieve/skins/${skin}"
 	ln -s "../../config/${dest}/managesieve.conf" repos/RC-Plugin-managesieve/config.inc.php
@@ -72,19 +72,20 @@ function main() {
 #
 #	Arguments:
 #		dest (string): rc_root name
-#		repo (string): name of remote repo
+#		skin (string): name of skin
 #	Returns:
 #		1 upon error
 #		0 upon success
 #######################################
 function get_rc() {
-	if [ "${#}" -ne 1 ]; then
+	if [ "${#}" -ne 2 ]; then
 		err "Error: missing arguments"
-		err "Usage: get_rc dest"
+		err "Usage: get_rc dest skin"
 		return 1
 	fi
 
 	local readonly dest="${1}"
+	local readonly skin="${2}"
 
 	echo "Updating Roundcube:"
 
@@ -94,8 +95,7 @@ function get_rc() {
 	# Update Roundcube if current is either outdated or nonexistant
 	if [[ -z "${current}" ]] || [[ "${latest}" != "${current}" ]]; then
 		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
-		local readonly skin=$(cat "config/${dest}/custom.inc.php" | grep "'skin'" | cut -d"'" -f4)
-
+		
 		wget -c "https://github.com/roundcube/roundcubemail/releases/download/${latest}/roundcubemail-${latest}-complete.tar.gz" -O - | tar -xz
 		mv "roundcubemail-${latest}" "${dest}"
 		chmod -R ug+rw "${dest}/temp" "${dest}/logs"
