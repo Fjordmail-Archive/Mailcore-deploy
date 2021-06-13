@@ -13,7 +13,7 @@
 ## Usage
 
 ```console
-Usage: ./deploy repo
+Usage: ./deploy repo destination
 Available repo:
         Sol.dk-RC
         Wemail-RC
@@ -22,7 +22,7 @@ Available repo:
 ## Example
 
 ```console
-$ ./deploy Sol.dk-RC
+$ ./deploy Sol.dk-RC app.sol.dk/
 UPDATING WEBMAIL: app.sol.dk
 
 Updating Roundcube:

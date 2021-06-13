@@ -16,7 +16,7 @@ function main() {
 	declare -a repos=("Sol.dk-RC" "Wemail-RC")
 
 	if [ "${#}" -ne 2 ]; then
-		err "Error: two arguments are required"
+		err "Error: two arguments are required, ${#} received"
 		err "${USAGE}"
 		err "Available repo:"
 		printf '\t%s\n' "${repos[@]}"
