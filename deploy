@@ -61,7 +61,7 @@ function main() {
 
 	# Fix permissions
 	sudo chown -R www-data:www-data "${dest}" config/ repos/
-	chmod -R ug+rw "${dest}" config/ repos/
+	sudo chmod -R ug+rw "${dest}" config/ repos/
 
 	return 0
 }
@@ -98,7 +98,6 @@ function get_rc() {
 
 		wget -c "https://github.com/roundcube/roundcubemail/releases/download/${latest}/roundcubemail-${latest}-complete.tar.gz" -O - | tar -xz
 		mv "roundcubemail-${latest}" "${dest}"
-		chmod -R ug+rw "${dest}/temp" "${dest}/logs"
 		rm -rf "${dest}/installer"
 
 		# Fetch RC config
