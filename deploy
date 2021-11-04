@@ -2,6 +2,9 @@
 set -e		# Abort upon error
 #set -x		# Print every command to stdout
 
+# Roundcube branch to deploy
+readonly CONFIG_BRANCH="1.5"
+
 #######################################
 #	See README.me
 #	Supports Wemail.no, Sol.dk and Mailia.no
@@ -99,36 +102,27 @@ function get_rc() {
 
 	echo "Updating Roundcube:"
 
-	local readonly latest=$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | grep -Po '"tag_name": "\K.*?(?=")')
-	local readonly current=$(cat "${dest}/CHANGELOG" | grep RELEASE | head -1 | cut -d' ' -f2)
+	# Backup current RC
+	[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
 
-	# Update Roundcube if current is either outdated or nonexistant
-	if [[ -z "${current}" ]] || [[ "${latest}" != "${current}" ]]; then
-		[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
+	# Clone branch $CONFIG_BRANCH to $dest and remove installer/, config/
+	git clone -b "release-${CONFIG_BRANCH}" https://github.com/roundcube/roundcubemail.git "${dest}"
+	rm -rf "${dest}/{installer,config}"
 
-		wget -c "https://github.com/roundcube/roundcubemail/releases/download/${latest}/roundcubemail-${latest}-complete.tar.gz" -O - | tar -xz
-		mv "roundcubemail-${latest}" "${dest}"
-		rm -rf "${dest}/installer"
+	# Fetch RC config
+	ln -s "../config/${dest}/" "${dest}/config"
 
-		# Fetch RC config
-		[[ -d "${dest}/config" ]] && rm -rf "${dest}/config"
-		ln -s "../config/${dest}/" "${dest}/config"
+	# Fetch third-party plugin
+	git clone https://github.com/sblaisot/automatic_addressbook.git "${dest}/plugins/automatic_addressbook"
+	git clone -b release-0.3 https://github.com/johndoh/roundcube-swipe.git "${dest}/plugins/swipe"
+	ln -s "elastic" "${dest}/plugins/swipe/skins/${skin}"
 
-		# Fetch third-party plugin
-		git clone https://github.com/sblaisot/automatic_addressbook.git "${dest}/plugins/automatic_addressbook"
-		git clone -b release-0.3 https://github.com/johndoh/roundcube-swipe.git "${dest}/plugins/swipe"
-		#cp -a ".bak/${dest}/plugins/swipe" "${dest}/plugins/roundcube-swipe"
-		ln -s "elastic" "${dest}/plugins/swipe/skins/${skin}"
+	# Fetch managesieve config
+	#ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
+	#ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
 
-		# Fetch managesieve config
-		#ln -s "../../config/managesieve.conf" "${dest}/plugins/managesieve/config.inc.php"
-		#ln -s "elastic" "${dest}/plugins/managesieve/skins/${skin}"
-
-		# Apply Jesper's patch
-		#echo "${MANAGESIEVE_PATCH}" | sed -e "s/app.sol.dk/${dest}/g" | patch -p 0
-	else
-		echo "Already up to date."
-	fi
+	# Apply Jesper's patch
+	#echo "${MANAGESIEVE_PATCH}" | sed -e "s/app.sol.dk/${dest}/g" | patch -p 0
 
 	return 0
 }
@@ -151,20 +145,9 @@ function get_skin() {
 	fi
 
 	local readonly dest="${1}"
-	echo -e "\nUpdating skins:"
-
-	# Check if passed dest exists
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if deploy key is found
 	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_skin"
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
+
+	echo -e "\nUpdating skins:"
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p repos/
@@ -176,16 +159,16 @@ function get_skin() {
 			git clone git@github.com:Fjordmail/RC-Skin.git repos/RC-Skin/
 	fi
 
-	# Put skin in rc_root/skins/
+	# Link each $dest/skins/x to in repos/RC-Skin/skins/x
 	for f in `command ls -d repos/RC-Skin/skins/*`; do
 		# $f = repos/RC-Skin/skins/sol
-		# $skin = sol
+		# $s = sol
 
 		# Skin name
-		local skin=$(echo "${f}" | rev | cut -d'/' -f1 | rev)
+		local s=$(echo "${f}" | rev | cut -d'/' -f1 | rev)
 
 		# Create link if it doesn't exist in $dest/skins
-		[[ ! -d "${dest}/skins/${skin}" ]] && ln -s "../../${f}" "${dest}/skins/${skin}"
+		[[ ! -d "${dest}/skins/${s}/" ]] && ln -s "../../${f}" "${dest}/skins/${s}"
 	done
 
 	return 0
@@ -209,20 +192,10 @@ function get_lang() {
 	fi
 
 	local readonly dest="${1}"
-	echo -e "\nUpdating langs:"
-
-	# Check if passed dest exists
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if deploy key is found
 	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_lang"
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
+	local readonly product_name=$(cat "config/${dest}/custom.inc.php" | grep "'product_name'" | cut -d"'" -f4)
+
+	echo -e "\nUpdating langs:"
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p repos/
@@ -233,8 +206,6 @@ function get_lang() {
 		GIT_SSH_COMMAND="ssh -i '${deploy_key}' -o IdentitiesOnly=yes" \
 			git clone git@github.com:Fjordmail/RC-Lang.git repos/RC-Lang/
 	fi
-
-	local readonly product_name=$(cat "config/${dest}/custom.inc.php" | grep "'product_name'" | cut -d"'" -f4)
 
 	# Link changed files from rc_root
 	for f in `find repos/RC-Lang/ -type f -not -path "repos/RC-Lang/.git*"`; do
@@ -279,23 +250,10 @@ function get_plugin() {
 	local readonly dest="${1}"
 	local readonly repo="${2}" # RC-Plugin-xxx
 	local readonly plugin_name=$(echo "${repo}" | cut -d'-' -f3) # xxx
-	local readonly branch="master"
-	[[ "${#}" -eq 3 ]] && branch="${3}"
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_${plugin_name}"
+	[[ "${#}" -eq 3 ]] && local branch="${3}" || local branch="master"
 
 	echo -e "\nUpdating ${2}:"
-
-	# Check if passed dest exists
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if deploy key is found
-	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_${plugin_name}"
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
 
 	# Update if the plugin exists, clone otherwise
 	mkdir -p repos/
@@ -330,8 +288,6 @@ function get_plugin() {
 #		0 upon success
 #######################################
 function get_raim() {
-	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_raim"
-
 	if [ "${#}" -ne 1 ]; then
 		err "Error: no argument provided"
 		err "Usage: get_raim dest"
@@ -340,18 +296,8 @@ function get_raim() {
 
 	echo -e "\nUpdating RAIM:"
 
-	# Check if passed dest exists
 	local readonly dest="${1}"
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if deloy key is found
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
+	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_raim"
 
 	# Check if raim is out of date or not existant
 	if should_be_updated "repos/raim-${dest}"; then
@@ -402,21 +348,10 @@ function get_recurrent() {
 		return 1
 	fi
 
-	local readonly dest="${1}"
 	echo -e "\nUpdating RC-Plugin-recurrent:"
 
-	# Check if passed dest exists
-	if [[ ! -d "${dest}" ]]; then
-		err "Error: destination folder does not exist"
-		return 1
-	fi
-
-	# Check if deploy key is found
+	local readonly dest="${1}"
 	local readonly deploy_key="$(pwd)/deploy_keys/mailcore_deploy_recurrent"
-	if [[ ! -f "${deploy_key}" ]]; then
-		err "Error: deploy key for was not found: ${deploy_key}"
-		return 1
-	fi
 
 	# Remove links, so the local repo can be updated
 	[[ -L "repos/RC-Plugin-recurrent-${dest}/vendor/Config.php" ]] && rm "repos/RC-Plugin-recurrent-${dest}/vendor/Config.php"
