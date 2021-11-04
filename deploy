@@ -107,7 +107,7 @@ function get_rc() {
 
 	# Clone branch $CONFIG_BRANCH to $dest and remove installer/, config/
 	git clone -b "release-${CONFIG_BRANCH}" https://github.com/roundcube/roundcubemail.git "${dest}"
-	rm -rf "${dest}/{installer,config}"
+	rm -rf "${dest}/installer" "${dest}/config"
 
 	# Fetch RC config
 	ln -s "../config/${dest}/" "${dest}/config"
