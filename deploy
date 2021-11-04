@@ -116,6 +116,12 @@ function get_rc() {
 	done
 	popd
 
+	# Install dependencies
+	pushd "${dest}"
+	mv composer.json-dist composer.json
+	composer isntall --no-dev
+	popd
+
 	# Fetch RC config
 	ln -s "../config/${dest}/" "${dest}/config"
 
