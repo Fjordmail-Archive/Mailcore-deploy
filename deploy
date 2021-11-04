@@ -110,6 +110,7 @@ function get_rc() {
 	curl -L "${dl_url}" --output rc.tar.gz
 	mkdir "${dest}" && tar -xzf rc.tar.gz -C "${dest}" --strip-components=1
 	rm -rf rc.tar.gz "${dest}/installer" "${dest}/config"
+	chmod -R ug+rw "${dest}/logs" "${dest}/temp"
 
 	# Fetch RC config
 	ln -s "../config/${dest}/" "${dest}/config"
