@@ -109,6 +109,13 @@ function get_rc() {
 	git clone -b "release-${CONFIG_BRANCH}" https://github.com/roundcube/roundcubemail.git "${dest}"
 	rm -rf "${dest}/installer" "${dest}/config"
 
+	# Compile less files
+	pushd "${dest}/skins/elastic"
+	for f in styles print embed; do
+		lessc --clean-css="--s1 --advanced" "styles/${f}.less" > "styles/${f}.min.css"
+	done
+	popd
+
 	# Fetch RC config
 	ln -s "../config/${dest}/" "${dest}/config"
 
@@ -328,10 +335,10 @@ function get_raim() {
 		ln -s "../../../../config/${dest}/raim_password-reset.env" "repos/raim-${dest}/packages/password-reset/.env"
 
 		# Build
-		cd "repos/raim-${dest}"
+		pushd "repos/raim-${dest}"
 		yarn install
 		yarn build
-		cd ../../
+		popd
 	else
 		echo "Already up to date."
 	fi
