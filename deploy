@@ -29,7 +29,7 @@ function main() {
 		return 2
 	fi
 
-	# Fetch skin, either from 'config.inc.php' or from 'custom.inc.php'
+	# Fetch skin, either from 'config.inc.php' or from 'custom.inc.php'. If none is found: abort
 	for f in config custom; do
 		# Get skin from $f.inc.php
 		[[ -f "config/${dest}/${f}.inc.php" ]] && \ 
@@ -40,12 +40,9 @@ function main() {
 			local readonly skin="${temp}"
 	done
 
-	# If $skin is still empty, abort
-	if [[ -z "${skin}" ]]; then
-		err "Error: Unable to find skin in config"
-		return 3
-	fi
+	[[ -z "${skin}" ]] && err "Error: Unable to find skin in config" && return 3
 
+	# Proceed to update
 	echo -e "UPDATING WEBMAIL: ${dest}\n"
 
 	# Fetch/update webmail
