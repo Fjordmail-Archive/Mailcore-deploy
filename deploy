@@ -105,22 +105,11 @@ function get_rc() {
 	# Backup current RC
 	[[ -d "${dest}" ]] && mv "${dest}" "${dest}.bak-$(date +'%Y-%m-%d--%H-%M')"
 
-	# Clone branch $CONFIG_BRANCH to $dest and remove installer/, config/
-	git clone -b "release-${CONFIG_BRANCH}" https://github.com/roundcube/roundcubemail.git "${dest}"
-	rm -rf "${dest}/installer" "${dest}/config"
-
-	# Compile less files
-	pushd "${dest}/skins/elastic"
-	for f in styles print embed; do
-		lessc --clean-css="--s1 --advanced" "styles/${f}.less" > "styles/${f}.min.css"
-	done
-	popd
-
-	# Install dependencies
-	pushd "${dest}"
-	mv composer.json-dist composer.json
-	composer install --no-dev
-	popd
+	# Find latest RC release and remove installer/, config/
+	local readonly dl_url="$(curl --silent "https://api.github.com/repos/roundcube/roundcubemail/releases/latest" | jq --raw-output '.assets[2].browser_download_url')"
+	curl -L "${dl_url}" --output rc.tar.gz
+	mkdir "${dest}" && tar -xzf rc.tar.gz -C "${dest}" --strip-components=1
+	rm -rf rc.tar.gz "${dest}/installer" "${dest}/config"
 
 	# Fetch RC config
 	ln -s "../config/${dest}/" "${dest}/config"
