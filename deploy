@@ -119,7 +119,7 @@ function get_rc() {
 	# Install dependencies
 	pushd "${dest}"
 	mv composer.json-dist composer.json
-	composer isntall --no-dev
+	composer install --no-dev
 	popd
 
 	# Fetch RC config
